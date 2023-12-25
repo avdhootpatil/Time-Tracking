@@ -4,6 +4,7 @@ import sql from "mssql";
 import { connectToDatabase } from "./controllers/dbController.js";
 import clientRouter from "./routes/client.js";
 import projectRouter from "./routes/project.js";
+import timeSheetRouter from "./routes/timeSheet.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(connectToDatabase);
 //controllers
 app.use("/client", clientRouter);
 app.use("/project", projectRouter);
+app.use("/timesheet", timeSheetRouter);
 
 app.listen(3001, () => {
   console.log("Server is started on port 3001");

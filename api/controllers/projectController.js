@@ -3,9 +3,11 @@ import sql from "mssql";
 export const ProjectList = async (req, res) => {
   try {
     let pool = req.db;
-    let result = await pool
-      .request()
-      .query("SELECT * FROM Projects WHERE IsActive=1");
+    let result = await pool.request().query(
+      `SELECT * FROM Projects 
+          WHERE 
+        IsActive=1`
+    );
     res.send(result.recordset);
   } catch (e) {
     res.status(400).send({ error: e.messgae });
@@ -25,7 +27,20 @@ export const addProject = async (req, res) => {
       .input("projectDescription", sql.VarChar, projectDescription)
       .input("clientId", sql.Int, clientId)
       .query(
-        `INSERT INTO PROJECTS (ProjectName, ProjectDescription, ClientId,  IsActive, CreatedDate, ModifiedDate) VALUES (@ProjectName, @ProjectDescription, @ClientId, 1, GETDATE(), GETDATE())`
+        `INSERT INTO PROJECTS 
+          (ProjectName, 
+          ProjectDescription, 
+          ClientId,  
+          IsActive, 
+          CreatedDate, 
+          ModifiedDate) 
+        VALUES 
+          (@ProjectName, 
+            @ProjectDescription, 
+            @ClientId, 
+            1, 
+            GETDATE(), 
+            GETDATE())`
       );
 
     res.status(201).json({ message: "Project added successfully" });
@@ -53,7 +68,12 @@ export const updateProject = async (req, res) => {
       .input("ClientId", sql.Int, clientId)
       .input("ProjectId", sql.Int, id)
       .query(
-        `UPDATE PROJECTS SET ProjectName=@ProjectName, ProjectDescription=@ProjectDescription, ClientId=@ClientId WHERE ProjectId=@ProjectId`
+        `UPDATE PROJECTS SET 
+          ProjectName=@ProjectName, 
+          ProjectDescription=@ProjectDescription, 
+          ClientId=@ClientId 
+        WHERE 
+          ProjectId=@ProjectId`
       );
 
     res.status(201).send({ message: "Project updated successfully" });
@@ -75,7 +95,12 @@ export const deleteProject = async (req, res) => {
     await pool
       .request()
       .input("ProjectId", sql.Int, id)
-      .query(`UPDATE PROJECTS SET IsActive=0 WHERE ProjectId=@ProjectId `);
+      .query(
+        `UPDATE PROJECTS SET 
+          IsActive=0 
+        WHERE 
+          ProjectId=@ProjectId `
+      );
 
     res.status(201).send({ message: "Project deleted successfully" });
   } catch (error) {
@@ -93,7 +118,11 @@ export const getProjectById = async (req, res) => {
       .request()
       .input("ProjectId", sql.Int, id)
       .query(
-        `SELECT * FROM PROJECTS WHERE IsActive=1 AND ProjectId=@ProjectId`
+        `SELECT * FROM PROJECTS 
+        WHERE 
+          IsActive=1 
+        AND 
+          ProjectId=@ProjectId`
       );
     res.send(result.recordset);
   } catch (e) {
