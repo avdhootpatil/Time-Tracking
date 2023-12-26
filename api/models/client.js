@@ -1,4 +1,6 @@
-export function Client(name, description) {
+function Client(name, description) {
   this.name = name;
   this.description = description;
 }
+
+export default CLient;

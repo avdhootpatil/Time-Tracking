@@ -5,6 +5,7 @@ import { connectToDatabase, pool } from "./controllers/dbController.js";
 import clientRouter from "./routes/client.js";
 import projectRouter from "./routes/project.js";
 import timeSheetRouter from "./routes/timeSheet.js";
+import userRouter from "./routes/user.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(connectToDatabase(pool));
 app.use("/client", clientRouter);
 app.use("/project", projectRouter);
 app.use("/timesheet", timeSheetRouter);
+app.use("/user", userRouter);
 
 let port = process.env.API_PORT || 3001;
 
