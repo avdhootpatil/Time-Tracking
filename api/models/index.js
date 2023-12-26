@@ -1,2 +1,2 @@
-export { default as Client } from "./client";
-export { default as User } from "./user";
+export { default as Client } from "./client.js";
+export { default as User } from "./user.js";

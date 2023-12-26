@@ -5,13 +5,14 @@ import {
   deleteClient,
   getClientById,
   updateClient,
+  validateClient,
 } from "../controllers/clientController.js";
 
 const clientRouter = express.Router();
 
 clientRouter.get("/getclientlist", clientList);
 
-clientRouter.post("/addclient", addClient);
+clientRouter.post("/addclient", validateClient, addClient);
 
 clientRouter.put("/updateclient/:id", updateClient);
 

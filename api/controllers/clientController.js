@@ -1,3 +1,7 @@
+import sql from "mssql";
+import { Client } from "../models/index.js";
+import { clientSchema } from "../schema/index.js";
+
 export const clientList = async (req, res) => {
   try {
     let pool = req.db;
@@ -15,21 +19,25 @@ export const addClient = async (req, res) => {
     let pool = req.db;
     let { name, description } = req.body;
 
-    await pool.request().query(
-      `INSERT INTO 
-        Clients 
+    await pool
+      .request()
+      .input("ClientName", sql.VarChar, name)
+      .input("description", sql.VarChar, description)
+      .query(
+        `INSERT INTO
+        Clients
           (ClientName,
-            ClientDescription, 
-            IsActive, 
-            CreatedDate, 
-            ModifiedOn) 
-          VALUES 
-            ('${name}', '
-            ${description}', 
-            1, 
-            GETDATE(), 
+            ClientDescription,
+            IsActive,
+            CreatedDate,
+            ModifiedOn)
+          VALUES
+            (@ClientName,
+            @description,
+            1,
+            GETDATE(),
             GETDATE())`
-    );
+      );
 
     res.status(201).json({ message: "Client added successfully" });
   } catch (error) {
@@ -103,4 +111,26 @@ export const getClientById = async (req, res) => {
   } catch (e) {
     res.status(400).send({ error: e });
   }
+};
+
+export const validateClient = (req, res, next) => {
+  let { name, description } = req.body;
+
+  let client = new Client(name, description);
+
+  const { error } = clientSchema.validate(client, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    // add errors in object with key as prop name and value as prop value
+    let clientErrors = {};
+    error.details.map((detail) => {
+      clientErrors[detail.context.key] = [detail.message];
+    });
+
+    return res.status(400).json(clientErrors);
+  }
+
+  next();
 };
