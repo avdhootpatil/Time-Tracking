@@ -1,8 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 export const dbConfig = {
-  user: "avd",
-  password: "avd",
-  server: "DESKTOP-PIK1NL2\\SQLEXPRESS",
-  database: "time_tracking",
-  port: "3065",
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  server: process.env.SERVER,
+  database: process.env.DATABASE,
+  port: process.env.PORT,
   trustServerCertificate: true,
 };

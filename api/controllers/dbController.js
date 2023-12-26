@@ -1,21 +1,22 @@
 import sql from "mssql";
 import { dbConfig } from "../config/dbConfig.js";
 
-export const connectToDatabase = async (req, res, next) => {
-  try {
-    //connect to the database
-    var pool = await sql.connect(dbConfig);
-    console.log("Database connected");
+export const pool = new sql.ConnectionPool(dbConfig);
 
-    //attach connection pool to the request
-    req.db = pool;
+export const connectToDatabase = (pool) => {
+  return async (req, res, next) => {
+    try {
+      await pool.connect();
+      console.log("Connected to the database");
 
-    next();
-  } catch (err) {
-    // Handle database connection error
-    console.error("Error connecting to the database", err);
-    res.status(500).json({ error: "Error connecting to the databse" });
-  }
+      req.db = pool;
+
+      next();
+    } catch (err) {
+      console.log("Error connecting to the database", err);
+      res.status(500).json({ error: "Error connecting to the databse" });
+    }
+  };
 };
 
 export const closeDatabaseConnection = async (pool) => {
