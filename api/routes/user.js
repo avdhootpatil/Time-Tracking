@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  auth,
   checkEmail,
   loginUser,
   registerUser,
@@ -10,5 +11,7 @@ const userRouter = express.Router();
 userRouter.post("/register", checkEmail, registerUser);
 
 userRouter.post("/login", checkEmail, loginUser);
+
+userRouter.post("/check-auth", auth);
 
 export default userRouter;

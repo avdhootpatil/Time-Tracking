@@ -89,7 +89,11 @@ export const loginUser = async (req, res) => {
     if (isPasswordMatched) {
       //sign  the json token and send it the client
       let secretKey = process.env.SECRET_KEY;
-      let token = jwt.sign({ id: req.user.id }, secretKey, { expiresIn: "1d" });
+      let token = jwt.sign(
+        { id: user.UserId, email: user.UserEmail },
+        secretKey,
+        { expiresIn: "1d" }
+      );
 
       //delete the password from request
       delete req.user.password;
@@ -106,5 +110,24 @@ export const loginUser = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).send({ message: "Unable to login, please try again." });
+  }
+};
+
+export const auth = async (req, res, next) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+
+    let decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+
+    const user = await decodedToken;
+
+    req.user = user;
+
+    res.status(201).send({ message: "User authenticated successfully" });
+  } catch (e) {
+    console.log("Auth middleware error", e);
+    res
+      .status(401)
+      .send({ message: "Not authorizeed to access the resource." });
   }
 };
