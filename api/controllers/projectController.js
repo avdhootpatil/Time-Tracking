@@ -1,4 +1,6 @@
 import sql from "mssql";
+import { Project } from "../models/index.js";
+import { projectSchema } from "../schema/index.js";
 
 export const ProjectList = async (req, res) => {
   try {
@@ -127,5 +129,26 @@ export const getProjectById = async (req, res) => {
     res.send(result.recordset);
   } catch (e) {
     return res.status(400).send({ error: e.message });
+  }
+};
+
+export const validateProject = async (req, res, next) => {
+  try {
+    let { projectName, projectDescription, clientId } = req.body;
+
+    let project = new Project(projectName, projectDescription, clientId);
+
+    await projectSchema.validate(project, { abortEarly: false });
+
+    next();
+  } catch (err) {
+    // add errors in object with key as prop name and value as prop value
+
+    let projectErrors = {};
+    err.inner.forEach((err) => {
+      projectErrors[err.path] = err.errors;
+    });
+
+    return res.status(400).json(projectErrors);
   }
 };

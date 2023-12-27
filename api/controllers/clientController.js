@@ -113,24 +113,24 @@ export const getClientById = async (req, res) => {
   }
 };
 
-export const validateClient = (req, res, next) => {
-  let { name, description } = req.body;
+export const validateClient = async (req, res, next) => {
+  try {
+    let { name, description } = req.body;
 
-  let client = new Client(name, description);
+    let client = new Client(name, description);
 
-  const { error } = clientSchema.validate(client, {
-    abortEarly: false,
-  });
+    await clientSchema.validate(client, {
+      abortEarly: false,
+    });
 
-  if (error) {
+    next();
+  } catch (err) {
     // add errors in object with key as prop name and value as prop value
     let clientErrors = {};
-    error.details.map((detail) => {
-      clientErrors[detail.context.key] = [detail.message];
+    err.inner.forEach((err) => {
+      clientErrors[err.path] = err.errors;
     });
 
     return res.status(400).json(clientErrors);
   }
-
-  next();
 };

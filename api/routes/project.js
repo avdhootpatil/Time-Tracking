@@ -6,15 +6,16 @@ import {
   getProjectById,
   getProjects,
   updateProject,
+  validateProject,
 } from "../controllers/projectController.js";
 
 const projectRouter = express.Router();
 
 projectRouter.get("/getprojectlist", ProjectList);
 
-projectRouter.post("/addproject", addProject);
+projectRouter.post("/addproject", validateProject, addProject);
 
-projectRouter.put("/updateproject/:id", updateProject);
+projectRouter.put("/updateproject/:id", validateProject, updateProject);
 
 projectRouter.post("/deleteproject/:id", deleteProject);
 

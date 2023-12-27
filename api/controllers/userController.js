@@ -1,6 +1,8 @@
 import sql from "mssql";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { User } from "../models/index.js";
+import { userSchema } from "../schema/index.js";
 
 export const checkEmail = async (req, res, next) => {
   try {
@@ -129,5 +131,25 @@ export const auth = async (req, res, next) => {
     res
       .status(401)
       .send({ message: "Not authorizeed to access the resource." });
+  }
+};
+
+export const validateUser = async (req, res, next) => {
+  try {
+    let { userName, userEmail, password } = req.body;
+
+    let user = new User(userName, userEmail, password);
+
+    await userSchema.validate(user, { abortEarly: false });
+
+    next();
+  } catch (err) {
+    // add errors in object with key as prop name and value as prop value
+    let clientErrors = {};
+    err.inner.forEach((err) => {
+      clientErrors[err.path] = err.errors;
+    });
+
+    return res.status(400).json(clientErrors);
   }
 };

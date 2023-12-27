@@ -1,4 +1,6 @@
 import sql from "mssql";
+import { Task } from "../models/index.js";
+import { taskSchema } from "../schema/index.js";
 
 export const getTimeSheetDetailsyUserId = (req, res) => {};
 
@@ -160,5 +162,43 @@ export const updateTimeEntry = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: error.message });
+  }
+};
+
+export const validateTimeEntry = async (req, res, next) => {
+  try {
+    let {
+      taskName,
+      clientId,
+      projectId,
+      estimateValue,
+      azureValue,
+      userStoryNumber,
+      taskNumber,
+      userId,
+    } = req.body;
+
+    let task = new Task(
+      taskName,
+      clientId,
+      projectId,
+      estimateValue,
+      azureValue,
+      userStoryNumber,
+      taskNumber,
+      userId
+    );
+
+    await taskSchema.validate(task, { abortEarly: false });
+
+    next();
+  } catch (e) {
+    // add errors in object with key as prop name and value as prop value
+    let taskErrors = {};
+    err.inner.forEach((err) => {
+      taskErrors[err.path] = err.errors;
+    });
+
+    return res.status(400).json(taskErrors);
   }
 };

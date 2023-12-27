@@ -14,7 +14,7 @@ clientRouter.get("/getclientlist", clientList);
 
 clientRouter.post("/addclient", validateClient, addClient);
 
-clientRouter.put("/updateclient/:id", updateClient);
+clientRouter.put("/updateclient/:id", validateClient, updateClient);
 
 clientRouter.post("/deleteclient/:id", deleteClient);
 

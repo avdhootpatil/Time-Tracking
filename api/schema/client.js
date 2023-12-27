@@ -1,8 +1,8 @@
-import joi from "joi";
+import yup from "yup";
 
-const clientSchema = joi.object({
-  name: joi.string().required(),
-  description: joi.string(),
+const clientSchema = yup.object({
+  name: yup.string().required(),
+  description: yup.string().nullable(),
 });
 
 export default clientSchema;

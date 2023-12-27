@@ -5,6 +5,7 @@ import {
   getTimeEntryById,
   getTimeSheetDetailsyUserId,
   updateTimeEntry,
+  validateTimeEntry,
 } from "../controllers/timeSheetController.js";
 
 const timeSheetRouter = express.Router();
@@ -18,8 +19,8 @@ timeSheetRouter.get("/gettimeentrybyid/:id", getTimeEntryById);
 
 timeSheetRouter.post("/deletetimeentry/:id", deleteTimeEntry);
 
-timeSheetRouter.post("/addtimeentry", addTimeEntry);
+timeSheetRouter.post("/addtimeentry", validateTimeEntry, addTimeEntry);
 
-timeSheetRouter.put("/updatetimeentry/:id", updateTimeEntry);
+timeSheetRouter.put("/updatetimeentry/:id", validateTimeEntry, updateTimeEntry);
 
 export default timeSheetRouter;
