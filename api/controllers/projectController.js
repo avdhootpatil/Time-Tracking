@@ -22,12 +22,14 @@ export const addProject = async (req, res) => {
   try {
     let pool = req.db;
     let { projectName, projectDescription, clientId } = req.body;
+    let { id } = req.user;
 
     await pool
       .request()
       .input("projectName", sql.VarChar, projectName)
       .input("projectDescription", sql.VarChar, projectDescription)
       .input("clientId", sql.Int, clientId)
+      .input("CreatedBy", sql.Int, id)
       .query(
         `INSERT INTO PROJECTS 
           (ProjectName, 
@@ -35,14 +37,14 @@ export const addProject = async (req, res) => {
           ClientId,  
           IsActive, 
           CreatedDate, 
-          ModifiedDate) 
+          CreatedBy) 
         VALUES 
           (@ProjectName, 
             @ProjectDescription, 
             @ClientId, 
             1, 
             GETDATE(), 
-            GETDATE())`
+            @CreatedBy)`
       );
 
     res.status(201).json({ message: "Project added successfully" });
@@ -58,6 +60,7 @@ export const updateProject = async (req, res) => {
 
     let { id } = req.params;
     let { projectName, projectDescription, clientId } = req.body;
+    let userId = req.user.id;
 
     if (id == 0) {
       throw new Error("Invalid project id");
@@ -69,11 +72,14 @@ export const updateProject = async (req, res) => {
       .input("ProjectDescription", sql.VarChar, projectDescription)
       .input("ClientId", sql.Int, clientId)
       .input("ProjectId", sql.Int, id)
+      .input("ModifiedBy", sql.Int, userId)
       .query(
         `UPDATE PROJECTS SET 
           ProjectName=@ProjectName, 
           ProjectDescription=@ProjectDescription, 
-          ClientId=@ClientId 
+          ClientId=@ClientId,
+          ModifiedDate=GETDATE(),
+          ModifiedBy=@ModifiedBy
         WHERE 
           ProjectId=@ProjectId`
       );
@@ -89,6 +95,7 @@ export const deleteProject = async (req, res) => {
   try {
     let pool = req.db;
     let { id } = req.params;
+    let userId = req.user.id;
 
     if (id == 0) {
       throw new Error("Invalid project id");
@@ -97,9 +104,12 @@ export const deleteProject = async (req, res) => {
     await pool
       .request()
       .input("ProjectId", sql.Int, id)
+      .input("ModifiedBy", sql.Int, userId)
       .query(
         `UPDATE PROJECTS SET 
-          IsActive=0 
+          IsActive=0,
+          ModifiedDate=GETDATE(),
+          ModifiedBy=@ModifiedBy
         WHERE 
           ProjectId=@ProjectId `
       );

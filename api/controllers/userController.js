@@ -117,6 +117,10 @@ export const loginUser = async (req, res) => {
 
 export const auth = async (req, res, next) => {
   try {
+    if (!req.headers?.authorization?.length) {
+      throw new Error("Token not present in request");
+    }
+
     let token = req.headers.authorization.split(" ")[1];
 
     let decodedToken = jwt.verify(token, process.env.SECRET_KEY);
@@ -125,12 +129,13 @@ export const auth = async (req, res, next) => {
 
     req.user = user;
 
-    res.status(201).send({ message: "User authenticated successfully" });
+    next();
   } catch (e) {
     console.log("Auth middleware error", e);
-    res
-      .status(401)
-      .send({ message: "Not authorizeed to access the resource." });
+    res.status(401).send({
+      message: "Not authorized to access the resource.",
+      error: e.message,
+    });
   }
 };
 

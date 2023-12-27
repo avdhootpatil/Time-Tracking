@@ -8,18 +8,19 @@ import {
   updateProject,
   validateProject,
 } from "../controllers/projectController.js";
+import { auth } from "../controllers/userController.js";
 
 const projectRouter = express.Router();
 
 projectRouter.get("/getprojectlist", ProjectList);
 
-projectRouter.post("/addproject", validateProject, addProject);
+projectRouter.post("/addproject", auth, validateProject, addProject);
 
-projectRouter.put("/updateproject/:id", validateProject, updateProject);
+projectRouter.put("/updateproject/:id", auth, validateProject, updateProject);
 
-projectRouter.post("/deleteproject/:id", deleteProject);
+projectRouter.post("/deleteproject/:id", auth, deleteProject);
 
-projectRouter.get("/getprojectbyid/:id", getProjectById);
+projectRouter.get("/getprojectbyid/:id", auth, getProjectById);
 
 projectRouter.get("/getprojects", getProjects);
 

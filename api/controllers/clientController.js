@@ -18,28 +18,29 @@ export const addClient = async (req, res) => {
   try {
     let pool = req.db;
     let { name, description } = req.body;
+    let { id } = req.user;
 
     await pool
       .request()
       .input("ClientName", sql.VarChar, name)
       .input("description", sql.VarChar, description)
+      .input("CreatedBy", sql.Int, id)
       .query(
-        `INSERT INTO
-        Clients
+        `INSERT INTO CLIENTS
           (ClientName,
             ClientDescription,
             IsActive,
             CreatedDate,
-            ModifiedOn)
+            CreatedBy)
           VALUES
             (@ClientName,
             @description,
             1,
             GETDATE(),
-            GETDATE())`
+            @CreatedBy)`
       );
 
-    res.status(201).json({ message: "Client added successfully" });
+    res.status(201).send({ message: "Client added successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: error.message });
@@ -52,18 +53,27 @@ export const updateClient = async (req, res) => {
 
     let { id } = req.params;
     let { name, description } = req.body;
+    let userId = req.user.id;
 
     if (id == 0) {
       throw new Error("Invalid client id");
     }
 
-    await pool.request().query(
-      `UPDATE CLIENTS SET 
-          ClientName='${name}', 
-          ClientDescription='${description}' 
+    await pool
+      .request()
+      .input("ClientName", sql.VarChar, name)
+      .input("description", sql.VarChar, description)
+      .input("ModifiedBy", sql.Int, userId)
+      .input("ClientId", sql.Int, id)
+      .query(
+        `UPDATE CLIENTS SET 
+          ClientName=@ClientName, 
+          ClientDescription=@description,
+          ModifiedOn=GETDATE(),
+          ModifiedBy=@ModifiedBy
         WHERE 
-          ClientId=${id} `
-    );
+          ClientId=@ClientId`
+      );
 
     res.status(201).send({ message: "Client updated successfully" });
   } catch (error) {
@@ -76,17 +86,24 @@ export const deleteClient = async (req, res) => {
   try {
     let pool = req.db;
     let { id } = req.params;
+    let userId = req.user.id;
 
     if (id == 0) {
       throw new Error("Invalid client id");
     }
 
-    await pool.request().query(
-      `UPDATE CLIENTS SET 
-          IsActive=0 
+    await pool
+      .request()
+      .input("ModifiedBy", sql.Int, userId)
+      .input("ClientId", sql.Int, id)
+      .query(
+        `UPDATE CLIENTS SET 
+          IsActive=0,
+          ModifiedOn=GETDATE(),
+          ModifiedBy=@ModifiedBy
         WHERE 
-         ClientId=${id} `
-    );
+         ClientId=@Client`
+      );
 
     res.status(201).send({ message: "Client deleted successfully" });
   } catch (error) {

@@ -25,6 +25,7 @@ export const deleteTimeEntry = async (req, res) => {
   try {
     let pool = req.db;
     let { id } = req.params;
+    let userId = req.user.id;
 
     if (id == 0) {
       throw new Error("Invalid task id");
@@ -33,9 +34,12 @@ export const deleteTimeEntry = async (req, res) => {
     await pool
       .request()
       .input("TaskId", sql.Int, id)
+      .input("UserId", sql.Int, userId)
       .query(
         `UPDATE TASKS SET 
           IsActive=0 
+          ModifiedBy=@UserId,
+          ModifiedDate=GETDATE()
         WHERE 
           TaskId=@TasKId `
       );
@@ -59,8 +63,9 @@ export const addTimeEntry = async (req, res) => {
       azureValue,
       userStoryNumber,
       taskNumber,
-      userId,
     } = req.body;
+
+    let { id } = req.user;
 
     await pool
       .request()
@@ -71,7 +76,7 @@ export const addTimeEntry = async (req, res) => {
       .input("AzureValue", sql.Decimal(10, 2), azureValue)
       .input("UserStoryNumber", sql.Int, userStoryNumber)
       .input("TaskNumber", sql.Int, taskNumber)
-      .input("UserId", sql.Int, userId)
+      .input("UserId", sql.Int, id)
       .input("IsActive", sql.Bit, 1)
       .query(
         `INSERT INTO TASKS 
@@ -85,8 +90,6 @@ export const addTimeEntry = async (req, res) => {
             UserId, 
             CreatedBy, 
             CreatedDate, 
-            ModifiedBy, 
-            ModifiedDate, 
             IsActive)
        VALUES 
         (@TaskName, 
@@ -97,10 +100,8 @@ export const addTimeEntry = async (req, res) => {
           @UserStoryNumber, 
           @TaskNumber, 
           @UserId, 
-          'avd', 
+          @UserId, 
           GETDATE(), 
-          'avd', 
-          GETDATE(),
           @isActive )`
       );
 
@@ -124,8 +125,9 @@ export const updateTimeEntry = async (req, res) => {
       azureValue,
       userStoryNumber,
       taskNumber,
-      userId,
     } = req.body;
+
+    let userId = req.user.id;
 
     if (id == 0) {
       throw new Error("Invalid task id");
@@ -153,7 +155,9 @@ export const updateTimeEntry = async (req, res) => {
           AzureValue=@AzureValue,
           UserStoryNumber=@UserStoryNumber,
           TaskNumber=@TaskNumber,
-          UserId=@UserId
+          UserId=@UserId,
+          ModifiedBy=@UserId,
+          ModifiedDate=GETDATE()
         WHERE 
           TaskId=@TaskId`
       );
@@ -178,6 +182,8 @@ export const validateTimeEntry = async (req, res, next) => {
       userId,
     } = req.body;
 
+    let { id } = req.user;
+
     let task = new Task(
       taskName,
       clientId,
@@ -186,13 +192,13 @@ export const validateTimeEntry = async (req, res, next) => {
       azureValue,
       userStoryNumber,
       taskNumber,
-      userId
+      id
     );
 
     await taskSchema.validate(task, { abortEarly: false });
 
     next();
-  } catch (e) {
+  } catch (err) {
     // add errors in object with key as prop name and value as prop value
     let taskErrors = {};
     err.inner.forEach((err) => {
