@@ -1,14 +1,53 @@
 import sql from "mssql";
+import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
+import { Pagination } from "../models/common.js";
 import { Client } from "../models/index.js";
 import { clientSchema } from "../schema/index.js";
 
 export const clientList = async (req, res) => {
   try {
     let pool = req.db;
+
+    // get page, pageSize from query object
+    let { page, pageSize } = extractPageQuery(req.query);
+
     let result = await pool
       .request()
-      .query("SELECT * FROM Clients WHERE IsActive=1");
-    res.send(result.recordset);
+      .input("PageSize", sql.Int, pageSize)
+      .input("PageNumber", sql.Int, page)
+      .execute("GetPaginatedClient");
+
+    let totalCount = getTotalCount(result.recordset[0]);
+
+    let paginatedResult = new Pagination(
+      result.recordset,
+      totalCount,
+      page,
+      pageSize
+    );
+
+    res.status(200).send(paginatedResult);
+  } catch (e) {
+    res.status(400).send({ error: e.messgae });
+  }
+};
+
+export const getClients = async (req, res) => {
+  try {
+    let pool = req.db;
+
+    let result = await pool.request().query(`
+      SELECT
+        ClientId as id,
+        ClientName as name ,
+        ClientDescription as description
+      FROM
+        CLIENTS
+      WHERE
+        IsActive=1 
+      `);
+
+    res.status(200).send(result.recordset);
   } catch (e) {
     res.status(400).send({ error: e.messgae });
   }

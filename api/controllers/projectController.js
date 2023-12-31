@@ -1,22 +1,57 @@
 import sql from "mssql";
+import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
+import { Pagination } from "../models/common.js";
 import { Project } from "../models/index.js";
 import { projectSchema } from "../schema/index.js";
 
 export const ProjectList = async (req, res) => {
   try {
     let pool = req.db;
-    let result = await pool.request().query(
-      `SELECT * FROM Projects 
-          WHERE 
-        IsActive=1`
+
+    // get page, pageSize from query object
+    let { page, pageSize } = extractPageQuery(req.query);
+
+    let result = await pool
+      .request()
+      .input("PageSize", sql.Int, pageSize)
+      .input("PageNumber", sql.Int, page)
+      .execute("GetPaginatedProjects");
+
+    let totalCount = getTotalCount(result.recordset[0]);
+
+    let paginatedResult = new Pagination(
+      result.recordset,
+      totalCount,
+      page,
+      pageSize
     );
-    res.send(result.recordset);
+
+    res.status(200).send(paginatedResult);
   } catch (e) {
     res.status(400).send({ error: e.messgae });
   }
 };
 
-export const getProjects = async (req, res) => {};
+export const getProjects = async (req, res) => {
+  try {
+    let pool = req.db;
+
+    let result = await pool.request().query(`
+      SELECT
+        ProjectId as id,
+        ProjectName as name ,
+        ProjectDescription as description
+      FROM
+        PROJECTS
+      WHERE
+        IsActive=1 
+      `);
+
+    res.status(200).send(result.recordset);
+  } catch (e) {
+    res.status(400).send({ error: e.messgae });
+  }
+};
 
 export const addProject = async (req, res) => {
   try {

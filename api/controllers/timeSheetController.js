@@ -1,8 +1,33 @@
 import sql from "mssql";
-import { Task } from "../models/index.js";
+import { Task, TaskByUserIdDTO } from "../models/index.js";
 import { taskSchema } from "../schema/index.js";
+import { tasksByDate } from "../helperFunctions.js";
 
-export const getTimeSheetDetailsyUserId = (req, res) => {};
+export const getTimeSheetDetailsyUserId = async (req, res) => {
+  try {
+    let pool = req.db;
+
+    let { startDate, endDate, userId } = req.body;
+
+    if (!startDate || !endDate)
+      return res.status(400).send({ message: "Missing parameters" });
+
+    let result = await pool
+      .request()
+      .input("startDate", sql.VarChar, startDate)
+      .input("endDate", sql.VarChar, endDate)
+      .input("userId", sql.Int, userId)
+      .execute("GetTasksByUserId");
+
+    let timeEntries = tasksByDate(result.recordset);
+
+    let tasks = new TaskByUserIdDTO(startDate, endDate, timeEntries);
+
+    res.status(200).send(tasks);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
 
 export const getTimeEntryById = async (req, res) => {
   try {
@@ -185,9 +210,12 @@ export const validateTimeEntry = async (req, res, next) => {
     let { id } = req.user;
 
     let task = new Task(
+      undefined,
       taskName,
       clientId,
+      undefined,
       projectId,
+      undefined,
       estimateValue,
       azureValue,
       userStoryNumber,
