@@ -12,9 +12,9 @@ export const checkEmail = async (req, res, next) => {
 
     let result = await pool.request().input("UserEmail", sql.VarChar, userEmail)
       .query(`
-    SELECT *
-    FROM USERS
-    WHERE UserEmail = @UserEmail;
+        SELECT *
+        FROM USERS
+        WHERE UserEmail = @UserEmail;
     `);
 
     //check type
@@ -156,5 +156,19 @@ export const validateUser = async (req, res, next) => {
     });
 
     return res.status(400).json(clientErrors);
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    let pool = req.db;
+    let users = await pool.query(
+      `SELECT UserId as id, UserName as name, UserEmail as email FROM Users ORDER BY UserId ASC`
+    );
+
+    res.status(200).send(users.recordset);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: err.message });
   }
 };
