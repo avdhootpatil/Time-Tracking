@@ -9,6 +9,7 @@ const taskSchema = yup.object({
   userStoryNumber: yup.number().required("User story number is required"),
   taskNumber: yup.number().required("Task number is required"),
   userId: yup.number().required("User ID is required"),
+  taskDate: yup.string().required("Task date is required"),
 });
 
 export default taskSchema;

@@ -88,6 +88,7 @@ export const addTimeEntry = async (req, res) => {
       azureValue,
       userStoryNumber,
       taskNumber,
+      taskDate,
     } = req.body;
 
     let { id } = req.user;
@@ -103,32 +104,8 @@ export const addTimeEntry = async (req, res) => {
       .input("TaskNumber", sql.Int, taskNumber)
       .input("UserId", sql.Int, id)
       .input("IsActive", sql.Bit, 1)
-      .query(
-        `INSERT INTO TASKS 
-          (TaskName, 
-            ClientId, 
-            ProjectId, 
-            EstimateValue, 
-            AzureValue,
-            UserStoryNumber, 
-            TaskNumber, 
-            UserId, 
-            CreatedBy, 
-            CreatedDate, 
-            IsActive)
-       VALUES 
-        (@TaskName, 
-          @ClientId, 
-          @ProjectId, 
-          @EstimateValue, 
-          @AzureValue, 
-          @UserStoryNumber, 
-          @TaskNumber, 
-          @UserId, 
-          @UserId, 
-          GETDATE(), 
-          @isActive )`
-      );
+      .input("TaskDate", sql.Date, taskDate)
+      .execute("AddTimeEntry");
 
     res.status(201).send({ messgae: "Task added successfully." });
   } catch (err) {
@@ -204,7 +181,7 @@ export const validateTimeEntry = async (req, res, next) => {
       azureValue,
       userStoryNumber,
       taskNumber,
-      userId,
+      taskDate,
     } = req.body;
 
     let { id } = req.user;
@@ -220,7 +197,8 @@ export const validateTimeEntry = async (req, res, next) => {
       azureValue,
       userStoryNumber,
       taskNumber,
-      id
+      id,
+      taskDate
     );
 
     await taskSchema.validate(task, { abortEarly: false });

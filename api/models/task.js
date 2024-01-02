@@ -11,6 +11,7 @@
  * @param {number} userStoryNumber
  * @param {number} taskNumber
  * @param {number} userId
+ * @param {string} taskDate
  */
 
 function Task(
@@ -24,7 +25,8 @@ function Task(
   azureValue,
   userStoryNumber,
   taskNumber,
-  userId
+  userId,
+  taskDate
 ) {
   this.taskId = taskId;
   this.taskName = taskName;
@@ -37,6 +39,7 @@ function Task(
   this.userStoryNumber = userStoryNumber;
   this.taskNumber = taskNumber;
   this.userId = userId;
+  this.taskDate = taskDate;
 }
 
 export default Task;
