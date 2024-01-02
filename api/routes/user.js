@@ -2,6 +2,7 @@ import express from "express";
 import {
   auth,
   checkEmail,
+  getUsers,
   loginUser,
   registerUser,
   validateUser,
@@ -14,5 +15,7 @@ userRouter.post("/register", validateUser, checkEmail, registerUser);
 userRouter.post("/login", validateUser, checkEmail, loginUser);
 
 userRouter.post("/check-auth", auth);
+
+userRouter.get("/getusers", getUsers);
 
 export default userRouter;
