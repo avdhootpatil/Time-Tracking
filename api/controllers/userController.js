@@ -1,6 +1,6 @@
-import sql from "mssql";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import sql from "mssql";
 import { User } from "../models/index.js";
 import { userSchema } from "../schema/index.js";
 
@@ -143,7 +143,7 @@ export const validateUser = async (req, res, next) => {
   try {
     let { userName, userEmail, password } = req.body;
 
-    let user = new User(userName, userEmail, password);
+    let user = new User(0, userName, userEmail, password);
 
     await userSchema.validate(user, { abortEarly: false });
 

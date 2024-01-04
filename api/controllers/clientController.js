@@ -1,3 +1,4 @@
+import camelcaseKeys from "camelcase-keys";
 import sql from "mssql";
 import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
 import { Pagination } from "../models/common.js";
@@ -26,6 +27,18 @@ export const clientList = async (req, res) => {
       pageSize
     );
 
+    //format result
+    let newItems = [];
+    paginatedResult.items.forEach((client) => {
+      let { ClientId, ClientName, ClientDescription } = client;
+      let newClient = new Client(ClientId, ClientName, ClientDescription);
+      newItems.push(newClient);
+    });
+
+    paginatedResult["items"] = newItems;
+
+    paginatedResult = camelcaseKeys(paginatedResult, { deep: true });
+
     res.status(200).send(paginatedResult);
   } catch (e) {
     res.status(400).send({ error: e.messgae });
@@ -47,7 +60,11 @@ export const getClients = async (req, res) => {
         IsActive=1 
       `);
 
-    res.status(200).send(result.recordset);
+    let clients = result.recordset;
+
+    clients = camelcaseKeys(clients, { deep: true });
+
+    res.status(200).send(clients);
   } catch (e) {
     res.status(400).send({ error: e.messgae });
   }
@@ -157,13 +174,18 @@ export const getClientById = async (req, res) => {
     let { id } = req.params;
 
     let result = await pool.request().query(
-      `SELECT * FROM Clients 
+      `SELECT ClientId, ClientName, ClientDescription FROM Clients 
         WHERE 
           IsActive=1 
         AND 
          ClientId=${id}`
     );
-    res.send(result.recordset);
+
+    let { ClientId, ClientName, ClientDescription } = result.recordset[0];
+
+    let client = new Client(ClientId, ClientName, ClientDescription);
+
+    res.send(client);
   } catch (e) {
     res.status(400).send({ error: e });
   }
@@ -173,7 +195,7 @@ export const validateClient = async (req, res, next) => {
   try {
     let { name, description } = req.body;
 
-    let client = new Client(name, description);
+    let client = new Client(0, name, description);
 
     await clientSchema.validate(client, {
       abortEarly: false,
