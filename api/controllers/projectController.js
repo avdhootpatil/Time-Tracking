@@ -2,7 +2,7 @@ import camelcaseKeys from "camelcase-keys";
 import sql from "mssql";
 import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
 import { Pagination } from "../models/common.js";
-import { Project } from "../models/index.js";
+import { Client, Project } from "../models/index.js";
 import { projectSchema } from "../schema/index.js";
 
 export const ProjectList = async (req, res) => {
@@ -184,11 +184,14 @@ export const getProjectById = async (req, res) => {
       .input("ProjectId", sql.Int, id)
       .execute("GetProjectById");
 
-    let { ProjectId, ProjectName, ProjectDescription, ClientName } =
+    let { ProjectId, ProjectName, ProjectDescription, ClientName, ClientId } =
       result.recordset[0];
 
     let project = new Project(ProjectId, ProjectName, ProjectDescription);
-    project["clientName"] = ClientName;
+
+    let client = new Client(ClientId, ClientName);
+
+    project["client"] = client;
 
     res.send(project);
   } catch (e) {
