@@ -12,7 +12,7 @@ import { auth } from "../controllers/userController.js";
 
 const projectRouter = express.Router();
 
-projectRouter.get("/getprojectlist", ProjectList);
+projectRouter.get("/getprojectlist", auth, ProjectList);
 
 projectRouter.post("/addproject", auth, validateProject, addProject);
 
@@ -22,6 +22,6 @@ projectRouter.post("/deleteproject/:id", auth, deleteProject);
 
 projectRouter.get("/getprojectbyid/:id", auth, getProjectById);
 
-projectRouter.get("/getprojects", getProjects);
+projectRouter.get("/getprojects", auth, getProjects);
 
 export default projectRouter;

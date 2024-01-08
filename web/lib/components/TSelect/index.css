@@ -1,0 +1,9 @@
+.required::after {
+  content: "*";
+  margin-left: 3px;
+  color: red;
+}
+
+.css-1fwnb9c .MuiTextField-root {
+  margin: 0px !important;
+}

@@ -12,9 +12,9 @@ import { auth } from "../controllers/userController.js";
 
 const clientRouter = express.Router();
 
-clientRouter.get("/getclientlist", clientList);
+clientRouter.get("/getclientlist", auth, clientList);
 
-clientRouter.get("/getclients", getClients);
+clientRouter.get("/getclients", auth, getClients);
 
 clientRouter.post("/addclient", auth, validateClient, addClient);
 

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import sql from "mssql";
 import { User } from "../models/index.js";
-import { userSchema } from "../schema/index.js";
+import { loginSchema, userSchema } from "../schema/index.js";
 
 export const checkEmail = async (req, res, next) => {
   try {
@@ -129,7 +129,11 @@ export const auth = async (req, res, next) => {
 
     req.user = user;
 
-    next();
+    if (req.url === "/check-auth") {
+      res.status(200).send({ message: "Authenticated" });
+    } else {
+      next();
+    }
   } catch (e) {
     console.log("Auth middleware error", e);
     res.status(401).send({
@@ -145,7 +149,14 @@ export const validateUser = async (req, res, next) => {
 
     let user = new User(0, userName, userEmail, password);
 
-    await userSchema.validate(user, { abortEarly: false });
+    //check type
+    let type = req.url.split("/")[1];
+
+    if (type === "register") {
+      await userSchema.validate(user, { abortEarly: false });
+    } else {
+      await loginSchema.validate(user, { abortEarly: false });
+    }
 
     next();
   } catch (err) {

@@ -158,7 +158,7 @@ export const deleteClient = async (req, res) => {
           ModifiedOn=GETDATE(),
           ModifiedBy=@ModifiedBy
         WHERE 
-         ClientId=@Client`
+         ClientId=@ClientId`
       );
 
     res.status(201).send({ message: "Client deleted successfully" });

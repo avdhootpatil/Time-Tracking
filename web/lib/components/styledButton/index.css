@@ -1,0 +1,17 @@
+:root {
+    --dark: #5b2a32;
+    --light: #e8e8e8;
+    --orange: #e87722;
+    --lightGray: #ccc;
+    --yellow: #ffd700;
+    --red: #ff0000;
+    --green: #44d755;
+  }
+.styled-btn {
+    color: var(--orange) !important;
+    font-weight: bold !important;
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    min-width: 100px !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    
+}
