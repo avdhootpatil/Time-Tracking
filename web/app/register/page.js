@@ -33,7 +33,7 @@ function RegistrationPage() {
   useEffect(() => {
     let user = getUserFromLocalStorage();
     if (user) {
-      ROUTER.push("/client");
+      ROUTER.push("/");
     }
   }, []);
 

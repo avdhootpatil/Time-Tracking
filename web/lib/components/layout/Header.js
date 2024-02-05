@@ -23,6 +23,8 @@ const Header = () => {
     let user = getUserFromLocalStorage();
     if (user) {
       setUser(user);
+    } else {
+      setUser(null);
     }
   }, [PATH_NAME]);
 

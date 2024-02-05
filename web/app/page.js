@@ -1,12 +1,12 @@
-// import styles from "./page.module.css";
 "use client";
 
 import { WithAuthentication } from "@/lib/components/auth";
+import Calender from "@/lib/components/calender";
 
 function Timesheet() {
   return (
     <main>
-      <div>Timesheet App</div>
+      <Calender />
     </main>
   );
 }

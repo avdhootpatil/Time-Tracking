@@ -11,6 +11,7 @@ const timeSheetRouter = express.Router();
 
 timeSheetRouter.post(
   "/gettimesheetdetailsbyuserid",
+  auth,
   getTimeSheetDetailsyUserId
 );
 

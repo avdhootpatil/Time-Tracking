@@ -37,7 +37,6 @@ function ProjectPage() {
       setProjects(response.data);
     } else {
       toast.error("Unable to get projects.");
-      // console.log("Error: ", response.message);
     }
   };
 

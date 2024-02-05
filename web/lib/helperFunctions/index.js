@@ -7,3 +7,7 @@ export const getUserFromLocalStorage = () => {
     return retrievedUser;
   }
 };
+
+export const removeUserFromLocalStorage = () => {
+  localStorage.removeItem("user");
+};

@@ -24,6 +24,7 @@ function ClientPage() {
   useEffect(() => {
     (async () => {
       let user = getUserFromLocalStorage();
+
       if (user) {
         setUser(user);
         await getPaginatedClients(1, PAGE_SIZE, user.token);

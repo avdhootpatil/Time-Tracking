@@ -57,10 +57,22 @@ export default function HeaderMenu({ user = null, onLogout = () => {} }) {
         {user ? (
           <MenuItem onClick={onLogout}>Logout</MenuItem>
         ) : (
-          <MenuItem onClick={() => ROUTER.push("/register")}>Register</MenuItem>
+          <MenuItem
+            onClick={() => {
+              ROUTER.push("/register");
+            }}
+          >
+            Register
+          </MenuItem>
         )}
         {user ? null : (
-          <MenuItem onClick={() => ROUTER.push("/login")}>Login</MenuItem>
+          <MenuItem
+            onClick={() => {
+              ROUTER.push("/login");
+            }}
+          >
+            Login
+          </MenuItem>
         )}
       </Menu>
     </Box>

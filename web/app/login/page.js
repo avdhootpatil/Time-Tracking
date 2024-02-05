@@ -32,7 +32,7 @@ export default function LoginPage() {
   useEffect(() => {
     let user = getUserFromLocalStorage();
     if (user) {
-      ROUTER.push("/client");
+      ROUTER.push("/");
     }
   }, []);
 
@@ -66,13 +66,14 @@ export default function LoginPage() {
       SCHEMA.validateSync(user, { abortEarly: false });
 
       let response = await login(user);
+
       if (response.status === "success") {
         toast.success("Logged in successfully!");
 
         localStorage.setItem("user", JSON.stringify(response.data));
 
         setTimeout(() => {
-          ROUTER.push("/client");
+          ROUTER.push("/");
         }, 1000);
       } else {
         let { status } = response;
