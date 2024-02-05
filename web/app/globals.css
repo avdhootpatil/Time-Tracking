@@ -39,69 +39,75 @@
   --card-rgb: 180, 185, 188;
   --card-border-rgb: 131, 134, 135;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
-    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-    --secondary-glow: linear-gradient(
-      to bottom right,
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0.3)
-    );
-
-    --tile-start-rgb: 2, 13, 46;
-    --tile-end-rgb: 2, 5, 19;
-    --tile-border: conic-gradient(
-      #ffffff80,
-      #ffffff40,
-      #ffffff30,
-      #ffffff20,
-      #ffffff10,
-      #ffffff10,
-      #ffffff80
-    );
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
-  }
+.MuiTableCell-head{
+  background-color: #444;
+  color:white;
 }
 
-* {
+.calendar-grid{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 49.7rem;
+  /* padding:1rem; */
+  margin-left:auto;
+  margin-right:auto;  
+   /* background-color: red */
+  border:1px solid grey;
+  
+  
+}
+
+.calendar-cell{  
+  justify-self: center  ;
+  text-align: end;
+  padding-right:0.5rem;
+  padding-top: 0.5rem;
+  border: 1px solid grey;
+  width:7rem;
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  /* margin:1rem 0; */
+  height:5rem;
+
+  user-select: none;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+.calendar-day-cell{
+  justify-self: center;
+  align-content: center;
+  text-align: center;
+  font-weight:bold;
+  box-sizing: border-box;
+  user-select: none;
+
+
+  /* background-color: yellow; */
+  width:7rem;
+}
+.calendar-navbar-month{
+grid-column: 3 / span 3;
+justify-self: center;
+text-align: center;
+font-weight: bold;
+font-size: 1.5rem;
+box-sizing: border-box;
+user-select: none;
+
+
+
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.calendar-nav-btns{
+  margin-bottom:1.5rem;
+  margin-top: 1.5rem;
+  align-self: center;
+  text-align: center;
+  border: 1px solid grey;
+  background-color: #fff;
+  width:100%;
+  height:2rem;
+  box-sizing: border-box;
+
+  cursor:pointer;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
