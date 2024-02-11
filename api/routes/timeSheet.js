@@ -1,9 +1,11 @@
 import express from "express";
 import {
   addTimeEntry,
+  dailyHoursLogged,
   deleteTimeEntry,
   getTimeSheetDetailsyUserId,
   gettasksbydate,
+  updateTimeEntry,
 } from "../controllers/timeSheetController.js";
 import { auth } from "../controllers/userController.js";
 
@@ -26,12 +28,13 @@ timeSheetRouter.post(
   addTimeEntry
 );
 
-// updated endpoint not needed
-// timeSheetRouter.put(
-//   "/updatetimeentry/:id",
-//   auth,
-//   validateTimeEntry,
-//   updateTimeEntry
-// );
+timeSheetRouter.get("/gethourslogged", auth, dailyHoursLogged);
+
+timeSheetRouter.put(
+  "/updatetimeentry/:id",
+  auth,
+  // validateTimeEntry,
+  updateTimeEntry
+);
 
 export default timeSheetRouter;

@@ -1,7 +1,7 @@
 import { Result, handleApiError, httpClient } from "@/utils";
 
-const getProjects = async (token) => {
-  const response = await httpClient.get(`/project/getprojects`, {
+const addTimeEntry = async (payload, token) => {
+  const response = await httpClient.post(`/timesheet/addtimeentry`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -17,4 +17,4 @@ const getProjects = async (token) => {
   }
 };
 
-export default getProjects;
+export default addTimeEntry;

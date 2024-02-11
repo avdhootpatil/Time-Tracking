@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const WithAuthentication = (WrappedComponent) => {
-  return async function hoc(props) {
+  return function hoc(props) {
     const ROUTER = useRouter();
-
     useEffect(() => {
       (async () => {
         let user = localStorage.getItem("user");

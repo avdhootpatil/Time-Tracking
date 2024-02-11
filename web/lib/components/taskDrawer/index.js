@@ -1,142 +1,200 @@
+"use client";
+
+import {
+  getTaskObject,
+  getTaskPostPayload,
+  getUserFromLocalStorage,
+} from "@/lib/helperFunctions";
+import { getClients } from "@/lib/services/client";
+import { getProjects } from "@/lib/services/project";
+import {
+  addTimeEntry,
+  deleteTask,
+  getTaskByDate,
+} from "@/lib/services/timesheet";
 import { Box, Button, Drawer } from "@mui/material";
-import { createContext, useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { produce } from "immer";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { TaskModal } from "../modal";
 import { TasksTable } from "../table";
+import DeletePopper from "../deletePopper";
 
-export const AutocompleteContext = createContext();
-const TasksDrawer = ({ open, onClose, selectedDate }) => {
-  const [selectedProject, setSelectedProject] = useState({});
-  const [selectedClient, setSelectedClient] = useState({});
-
+const TasksDrawer = ({
+  open = false,
+  onClose = () => {},
+  selectedDate = null,
+}) => {
   const [tasksForSelectedDay, setTasksForSelectedDay] = useState([]);
+  const [user, setUser] = useState(null);
+
+  // modal states
+  const [task, setTask] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [isTaskModalVisible, setIsTaskModalVisible] = useState(false);
+
+  //delete popper states
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isDeletePopperOpen, setIsDeletePopperOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(0);
+
   useEffect(() => {
     (async () => {
-      if (selectedDate) {
-        let res;
-        //  = await getTasksByDate(selectedDate);
-        // console.log(res);
-        // console.log(selectedDate);
-        // console.log(res.data);
-        setTasksForSelectedDay(res?.data);
+      if (open && selectedDate) {
+        let user = getUserFromLocalStorage();
+        setUser(user);
+
+        if (user) {
+          let currentDate = selectedDate.split("T")[0];
+          let response = await getTaskByDate(currentDate, user.token);
+          if (response.status === "success") {
+            if (response.data.length) {
+              setTasksForSelectedDay(response?.data);
+            }
+
+            //get projects
+            let pResponse = await getProjects(user?.token);
+            if (pResponse.status === "success") {
+              setProjects(pResponse.data);
+            } else {
+              toast.error("Unable to get projects");
+            }
+
+            //get client
+            let cResponse = await getClients(user?.token);
+            if (cResponse.status === "success") {
+              setClients(cResponse.data);
+            } else {
+              toast.error("Unbale to get clients");
+            }
+          }
+        }
+      }
+      if (!open) {
+        setTasksForSelectedDay([]);
       }
     })();
   }, [open]);
 
-  const handleChange =
-    (index, val = "", name = "") =>
-    (e) => {
-      // debugger;
-      let temp = [...tasksForSelectedDay];
-      let key = e?.target?.name ? e.target.name : name;
-      if (key == "clientName") {
-        // temp[index].client.name = e.target.value;
-        // console.log(name);
-        temp[index].client.name = val;
-      } else if (key == "projectName") {
-        // temp[index].project.name = e.target.value;
-        temp[index].project.name = val;
-      } else if (key == "projectDescription") {
-        temp[index].project.description = e.target.value;
-      } else if (key == "userName") {
-        temp[index].user.userName = e.target.value;
-      } else {
-        temp[index] = {
-          ...temp[index],
-          [key]: e.target.value,
-        };
+  const getTasksForDay = async () => {
+    let currentDate = selectedDate.split("T")[0];
+    let response = await getTaskByDate(currentDate, user.token);
+    if (response.status === "success") {
+      if (response.data.length) {
+        setTasksForSelectedDay(response?.data);
       }
-
-      setTasksForSelectedDay(temp);
-    };
-
-  const handleAddTask = (index) => (e) => {
-    console.log("handleAddTask");
-
-    let temp = {
-      taskId: "",
-      taskName: "",
-      estimateValue: "",
-      azureValue: "",
-      userStoryNumber: "",
-      taskNumber: "",
-      client: { id: 0, name: "" },
-      project: { id: 0, name: "", description: "" },
-      user: { id: 0, userName: "" },
-    };
-    setTasksForSelectedDay((prev) => {
-      let before = prev.slice(0, index + 1);
-      let after = prev.slice(index + 1);
-      return [...before, temp, ...after];
-    });
+    }
   };
 
-  const handleSaveTasks = async () => {
-    console.log("tasks have been saved");
-
-    let payload = {
-      userId: 11,
-      taskDate: selectedDate,
-      tasks: tasksForSelectedDay,
-    };
-    //make post request to api
-    let res;
-    //  await addTimeEntry(payload);
-    console.log(res);
-    console.log(payload);
+  const handleAddTask = async (e) => {
+    let newTask = getTaskObject();
+    setTask(newTask);
+    setIsTaskModalVisible(true);
   };
 
-  const handleDeleteTask = (index) => (e) => {
-    console.log("task deleted");
-    let temp = [...tasksForSelectedDay];
-    temp.splice(index, 1);
-    setTasksForSelectedDay(temp);
+  const handleEditTask = (index) => (e) => {
+    let currentTask = tasksForSelectedDay[index];
+    setTask(currentTask);
+    setIsTaskModalVisible(true);
   };
+
+  const handleSave = async () => {
+    let postPaylod = getTaskPostPayload(selectedDate, tasksForSelectedDay);
+    let response = await addTimeEntry(postPaylod, user?.token);
+    if (response.status === "success") {
+      toast.success("Saved successfully.");
+      onClose();
+    } else {
+      toast.error("Unable to save");
+    }
+  };
+
+  const handleCloseModal = (isGetCallNeeded) => async (e) => {
+    if (isGetCallNeeded) {
+      await getTasksForDay();
+    }
+    setIsTaskModalVisible(false);
+  };
+
+  const handleDeleteTask = (id) => (e) => {
+    setDeleteId(id);
+    setAnchorEl(e.currentTarget);
+    setIsDeletePopperOpen(true);
+  };
+
+  const handleDeletConfirm = async (e) => {
+    setIsDeletePopperOpen(false);
+    setAnchorEl(null);
+    let response = await deleteTask(deleteId, user?.token);
+    if (response.status === "success") {
+      toast.success("Task deleted successfully.");
+    } else {
+      toast.error("Unable to delete task.");
+    }
+  };
+
   return (
     <>
-      <AutocompleteContext.Provider
-        value={
-          [
-            // selectedClient,
-            // setSelectedClient,
-            // selectedProject,
-            // setSelectedProject,
-          ]
-        }
-      >
-        <Drawer open={open} onClose={onClose} anchor="right">
-          <Box sx={{ width: "99vw" }}>
-            <TasksTable
-              tasks={tasksForSelectedDay}
-              handleChange={handleChange}
-              handleAddTask={handleAddTask}
-              handleDeleteTask={handleDeleteTask}
-            />
-            <Button
-              variant="contained"
-              sx={{
-                width: "2rem",
-                float: "right",
-                marginRight: "2rem",
-                marginTop: "2rem",
-              }}
-              onClick={handleSaveTasks}
-            >
-              Save
-            </Button>
-            <Button
-              onClick={onClose}
-              variant="outlined"
-              sx={{
-                width: "2rem",
-                float: "right",
-                marginRight: "2rem",
-                marginTop: "2rem",
-              }}
-            >
-              Cancel
-            </Button>
-          </Box>
-        </Drawer>
-      </AutocompleteContext.Provider>
+      <Drawer open={open} onClose={onClose} anchor="right">
+        <Box sx={{ width: "96vw" }}>
+          <h1 style={{ padding: "10px" }}>
+            {dayjs(selectedDate).format("DD/MM/YYYY")}
+          </h1>
+          <TasksTable
+            tasks={tasksForSelectedDay}
+            onAdd={handleAddTask}
+            onEdit={handleEditTask}
+            onDelete={handleDeleteTask}
+          />
+          <Button
+            variant="contained"
+            sx={{
+              width: "7rem",
+              float: "right",
+              marginRight: "2rem",
+              marginTop: "2rem",
+              padding: "5px",
+            }}
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+          <Button
+            onClick={onClose}
+            variant="contained"
+            sx={{
+              width: "7rem",
+              float: "right",
+              marginRight: "2rem",
+              marginTop: "2rem",
+              padding: "5px",
+            }}
+          >
+            Cancel
+          </Button>
+        </Box>
+        <TaskModal
+          isModalOpen={isTaskModalVisible}
+          closeModal={handleCloseModal}
+          task={task}
+          user={user}
+          clients={clients}
+          projects={projects}
+          date={selectedDate}
+        />
+        <DeletePopper
+          open={isDeletePopperOpen}
+          anchorEl={anchorEl}
+          onCancel={() => {
+            debugger;
+            setAnchorEl(null);
+            setIsDeletePopperOpen(false);
+          }}
+          onConfirm={handleDeletConfirm}
+        />
+      </Drawer>
     </>
   );
 };

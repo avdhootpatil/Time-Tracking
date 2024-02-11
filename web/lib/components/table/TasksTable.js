@@ -1,114 +1,84 @@
-import { AddCircleOutline, Delete } from "@mui/icons-material";
+import { StyledTableCell, StyledTableRow } from "@/lib/styles/tableStyles";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   IconButton,
-  Paper,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
 } from "@mui/material";
+import EmptyComponent from "../emptyComponent";
 
 const TasksTable = ({
-  tasks,
-  handleAddTask,
-  handleChange,
-  handleDeleteTask,
+  tasks = [],
+  onAdd = () => {},
+  onEdit = () => {},
+  onDelete = () => {},
 }) => {
   return (
     <>
-      <Paper sx={{ margin: "1rem", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: "80vh" }}>
-          <Table stickyHeader size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Task Name</TableCell>
-                <TableCell>Estimate Value</TableCell>
-                <TableCell>Azure Value</TableCell>
-                <TableCell>User Story No.</TableCell>
-                <TableCell>Task No.</TableCell>
-                <TableCell>Client</TableCell>
-                <TableCell>Project</TableCell>
+      <TableContainer
+        sx={{ minHeight: "80vh", borderBottom: "1px solid lightGrey" }}
+      >
+        <Table stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>Task Name</StyledTableCell>
+              <StyledTableCell>Estimate Value</StyledTableCell>
+              <StyledTableCell>Azure Value</StyledTableCell>
+              <StyledTableCell>User Story No.</StyledTableCell>
+              <StyledTableCell>Task No.</StyledTableCell>
+              <StyledTableCell>Client</StyledTableCell>
+              <StyledTableCell>Project</StyledTableCell>
 
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tasks.map((task, index) => (
-                <TableRow key={task.taskId}>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      onChange={handleChange(index)}
-                      name="taskName"
-                      value={task?.taskName}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      name="estimateValue"
-                      value={task?.estimateValue}
-                      onChange={handleChange(index)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      name="azureValue"
-                      value={task?.azureValue}
-                      onChange={handleChange(index)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      name="userStoryNumber"
-                      value={task?.userStoryNumber}
-                      onChange={handleChange(index)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      name="taskNumber"
-                      value={task?.taskNumber}
-                      onChange={handleChange(index)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {/* <TasksTableClientAutocomplete
-                      handleChange={handleChange}
-                      index={index}
-                      value={task?.client?.name || ""}
-                    /> */}
-                  </TableCell>
+              <StyledTableCell></StyledTableCell>
+              <StyledTableCell>
+                <IconButton onClick={onAdd}>
+                  <AddIcon sx={{ color: "white" }} />
+                </IconButton>
+              </StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tasks.map((task, index) => (
+              <StyledTableRow key={task.taskId}>
+                <StyledTableCell sx={{ width: "20%" }}>
+                  {task?.taskName}
+                </StyledTableCell>
+                <StyledTableCell sx={{ width: "120px" }}>
+                  {task?.estimateValue}
+                </StyledTableCell>
+                <StyledTableCell sx={{ width: "120px" }}>
+                  {task?.azureValue}
+                </StyledTableCell>
+                <StyledTableCell sx={{ width: "120px" }}>
+                  {task?.userStoryNumber}
+                </StyledTableCell>
+                <StyledTableCell sx={{ width: "120px" }}>
+                  {task?.taskNumber}
+                </StyledTableCell>
+                <StyledTableCell>{task?.client?.name}</StyledTableCell>
+                <StyledTableCell>{task?.project?.name}</StyledTableCell>
 
-                  {/* <TasksTableProjectAutocomplete
-                    handleChange={handleChange}
-                    index={index}
-                    value={task?.project?.name}
-                  /> */}
-
-                  <TableCell sx={{ padding: 0 }}>
-                    <IconButton onClick={handleAddTask(index)}>
-                      <AddCircleOutline color="primary" />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell sx={{ padding: 0 }}>
-                    <IconButton onClick={handleDeleteTask(index)}>
-                      <Delete color="error" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                <StyledTableCell sx={{ padding: 0, width: "20px" }}>
+                  <IconButton onClick={onEdit(index)}>
+                    <EditIcon color="primary" />
+                  </IconButton>
+                </StyledTableCell>
+                <StyledTableCell sx={{ padding: 0, width: "40px" }}>
+                  <IconButton onClick={onDelete(task.taskId)}>
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                </StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {!tasks.length ? <EmptyComponent /> : null}
+      </TableContainer>
     </>
   );
 };

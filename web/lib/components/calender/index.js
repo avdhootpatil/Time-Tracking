@@ -1,65 +1,87 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import TasksDrawer from "../taskDrawer";
-import CalendarNavbar from "./CalenderNavbar";
 import CalendarDates from "./CalenderDates";
+import CalendarNavbar from "./CalenderNavbar";
+import { getHoursLogged } from "@/lib/services/timesheet";
+import { getUserFromLocalStorage } from "@/lib/helperFunctions";
+
 const Calendar = () => {
-  const dayjs = require("dayjs");
+  const tempCurrentMonth = dayjs().month();
+
   const [daysInEachMonth, setDaysInEachMonth] = useState([]);
   const [daysInWeek, setDaysInWeek] = useState([]);
   const [firstDayOfMonth, setFirstDayOfMonth] = useState([]);
-  let tempCurrentMonth = dayjs().month();
   const [selectedMonth, setSelectedMonth] = useState(tempCurrentMonth);
   const [selectedYear, setSelectedYear] = useState(dayjs().year());
   const [selectedDate, setSelectedDate] = useState(0);
   const [openTasksDrawer, setOpenTasksDrawer] = useState(false);
   const [daysOfMonth, setDaysOfMonth] = useState([]);
-
-  // daysOfMonth = [
-  //   {
-  //     id: 1,
-  //     date: "2024-01-17",
-  //     isDayVisivble: false,
-  //   },
-  // ];
+  const [todaysDate, setTodaysDate] = useState(new Date().toISOString());
+  const [hourLogged, setHourLogged] = useState(null);
 
   useEffect(() => {
-    let tempDaysInMonth = [];
-    for (let i = 0; i < 12; i++) {
-      tempDaysInMonth.push(dayjs(`${selectedYear}-${i + 1}-01`).daysInMonth());
-    }
-    setDaysInWeek("Sun Mon Tue Wed Thu Fri Sat".split(" "));
+    (async () => {
+      let user = getUserFromLocalStorage();
+      let tempDaysInMonth = [];
 
-    let tempFirstDayOfMonth = [];
-
-    tempDaysInMonth.map((day, index) => {
-      let date = dayjs(`${index + 1}-01-${selectedYear}`).format("d");
-      tempFirstDayOfMonth.push(date);
-      setFirstDayOfMonth(tempFirstDayOfMonth);
-    });
-    setDaysInEachMonth(tempDaysInMonth);
-
-    let tempDaysOfMonth = [];
-    for (let i = 0; i < 12; i++) {
-      let tempDatesOfEachMonth = [];
-      for (let k = 0; k < tempFirstDayOfMonth[i]; k++) {
-        tempDatesOfEachMonth.push({
-          id: crypto.randomUUID(),
-          date: "",
-          isDayVisible: false,
-        });
+      for (let i = 0; i < 12; i++) {
+        tempDaysInMonth.push(
+          dayjs(`${selectedYear}-${i + 1}-01`).daysInMonth()
+        );
       }
-      for (let j = 0; j < tempDaysInMonth[i]; j++) {
-        tempDatesOfEachMonth.push({
-          id: crypto.randomUUID(),
-          date: dayjs(`${selectedYear}-${i + 1}-${j + 1}`).format("YYYY-MM-DD"),
-          isDayVisible: true,
-        });
+      setDaysInWeek("Sun Mon Tue Wed Thu Fri Sat".split(" "));
+
+      let tempFirstDayOfMonth = [];
+
+      tempDaysInMonth.map((day, index) => {
+        let date = dayjs(`${index + 1}-01-${selectedYear}`).format("d");
+        tempFirstDayOfMonth.push(date);
+        setFirstDayOfMonth(tempFirstDayOfMonth);
+      });
+
+      setDaysInEachMonth(tempDaysInMonth);
+
+      let hReponse = await getHoursLogged(
+        selectedMonth + 1,
+        selectedYear,
+        user?.token
+      );
+      if (hReponse.status === "success") {
+        let hours = hReponse.data;
+        setHourLogged(hours);
+
+        let tempDaysOfMonth = [];
+
+        for (let i = 0; i < 12; i++) {
+          let tempDatesOfEachMonth = [];
+          for (let k = 0; k < tempFirstDayOfMonth[i]; k++) {
+            tempDatesOfEachMonth.push({
+              id: crypto.randomUUID(),
+              date: "",
+              isDayVisible: false,
+              hoursLogged: 0,
+            });
+          }
+
+          for (let j = 0; j < tempDaysInMonth[i]; j++) {
+            tempDatesOfEachMonth.push({
+              id: crypto.randomUUID(),
+              date: dayjs(`${selectedYear}-${i + 1}-${j + 1}`).format(
+                "YYYY-MM-DD"
+              ),
+              isDayVisible: true,
+              hoursLogged: 7,
+            });
+          }
+          tempDaysOfMonth.push(tempDatesOfEachMonth);
+        }
+
+        setDaysOfMonth(tempDaysOfMonth);
       }
-      tempDaysOfMonth.push(tempDatesOfEachMonth);
-    }
-    setDaysOfMonth(tempDaysOfMonth);
+    })();
   }, [selectedYear]);
 
   const handleIncrementMonth = () => {
@@ -85,19 +107,28 @@ const Calendar = () => {
   const handleIncrementYear = () => {
     setSelectedYear((prev) => prev + 1);
   };
+
   const handleDecrementYear = () => {
     setSelectedYear((prev) => prev - 1);
   };
 
-  const handleOpenTasksDrawer = (e) => {
-    setOpenTasksDrawer(true);
-    let tempDate = dayjs(e.target.id).format();
-    setSelectedDate(tempDate);
+  const handleOpenTasksDrawer = (date) => (e) => {
+    let date = e.target.id;
+    if (date.length) {
+      let d = new Date(date);
+      var newd = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      let currentDate = newd.toISOString();
+      setSelectedDate(currentDate);
+      setOpenTasksDrawer(true);
+    }
   };
 
   const handleClose = () => {
     setOpenTasksDrawer(false);
   };
+
+  console.log(daysInEachMonth);
+  console.log(daysOfMonth);
 
   return (
     <>
@@ -117,8 +148,9 @@ const Calendar = () => {
         ))}
 
         <CalendarDates
-          handleOpenTasksDrawer={handleOpenTasksDrawer}
+          onTaskDrawerOpen={handleOpenTasksDrawer}
           daysOfMonth={daysOfMonth[selectedMonth]}
+          todaysDate={todaysDate}
         />
       </div>
       <TasksDrawer

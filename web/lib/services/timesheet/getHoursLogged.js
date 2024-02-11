@@ -1,11 +1,14 @@
 import { Result, handleApiError, httpClient } from "@/utils";
 
-const getProjects = async (token) => {
-  const response = await httpClient.get(`/project/getprojects`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const getHoursLogged = async (month, year, token) => {
+  const response = await httpClient.get(
+    `/timesheet/gethourslogged?month=${month}&year=${year}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   if (response.ok) {
     let data = await response.json();
     return Result.success(data);
@@ -17,4 +20,4 @@ const getProjects = async (token) => {
   }
 };
 
-export default getProjects;
+export default getHoursLogged;
