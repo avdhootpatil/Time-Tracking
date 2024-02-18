@@ -6,7 +6,11 @@ import TasksDrawer from "../taskDrawer";
 import CalendarDates from "./CalenderDates";
 import CalendarNavbar from "./CalenderNavbar";
 import { getHoursLogged } from "@/lib/services/timesheet";
-import { getUserFromLocalStorage } from "@/lib/helperFunctions";
+import {
+  getUserFromLocalStorage,
+  hourLoggedForMonth,
+  updateHoursLogged,
+} from "@/lib/helperFunctions";
 
 const Calendar = () => {
   const tempCurrentMonth = dayjs().month();
@@ -21,10 +25,12 @@ const Calendar = () => {
   const [daysOfMonth, setDaysOfMonth] = useState([]);
   const [todaysDate, setTodaysDate] = useState(new Date().toISOString());
   const [hourLogged, setHourLogged] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     (async () => {
       let user = getUserFromLocalStorage();
+      setUser(user);
       let tempDaysInMonth = [];
 
       for (let i = 0; i < 12; i++) {
@@ -50,7 +56,7 @@ const Calendar = () => {
         user?.token
       );
       if (hReponse.status === "success") {
-        let hours = hReponse.data;
+        let hours = hourLoggedForMonth(hReponse.data);
         setHourLogged(hours);
 
         let tempDaysOfMonth = [];
@@ -67,24 +73,25 @@ const Calendar = () => {
           }
 
           for (let j = 0; j < tempDaysInMonth[i]; j++) {
+            let date = dayjs(`${selectedYear}-${i + 1}-${j + 1}`).format(
+              "YYYY-MM-DD"
+            );
+
             tempDatesOfEachMonth.push({
               id: crypto.randomUUID(),
-              date: dayjs(`${selectedYear}-${i + 1}-${j + 1}`).format(
-                "YYYY-MM-DD"
-              ),
+              date: date,
               isDayVisible: true,
-              hoursLogged: 7,
+              hoursLogged: hours[date] || 0,
             });
           }
           tempDaysOfMonth.push(tempDatesOfEachMonth);
         }
-
         setDaysOfMonth(tempDaysOfMonth);
       }
     })();
   }, [selectedYear]);
 
-  const handleIncrementMonth = () => {
+  const handleIncrementMonth = async () => {
     let tempSelectedMonth = selectedMonth;
     if (tempSelectedMonth < 11) tempSelectedMonth++;
     else {
@@ -92,9 +99,11 @@ const Calendar = () => {
       setSelectedYear((prev) => prev + 1);
     }
     setSelectedMonth(tempSelectedMonth);
+
+    await getSetLoggedHours(tempSelectedMonth, selectedYear, user?.token);
   };
 
-  const handleDecrementMonth = () => {
+  const handleDecrementMonth = async () => {
     let tempSelectedMonth = selectedMonth;
     if (tempSelectedMonth > 0) tempSelectedMonth--;
     else {
@@ -102,6 +111,8 @@ const Calendar = () => {
       setSelectedYear((prev) => prev - 1);
     }
     setSelectedMonth(tempSelectedMonth);
+
+    await getSetLoggedHours(tempSelectedMonth, selectedYear, user?.token);
   };
 
   const handleIncrementYear = () => {
@@ -123,12 +134,22 @@ const Calendar = () => {
     }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setOpenTasksDrawer(false);
+
+    await getSetLoggedHours(selectedMonth, selectedYear, user?.token);
   };
 
-  console.log(daysInEachMonth);
-  console.log(daysOfMonth);
+  const getSetLoggedHours = async (selectedMonth, selectedYear, token) => {
+    let response = await getHoursLogged(selectedMonth + 1, selectedYear, token);
+
+    if (response.status === "success") {
+      let hours = hourLoggedForMonth(response.data);
+      setHourLogged(hours);
+      let monthDays = updateHoursLogged(selectedMonth, daysOfMonth, hours);
+      setDaysOfMonth(monthDays);
+    }
+  };
 
   return (
     <>

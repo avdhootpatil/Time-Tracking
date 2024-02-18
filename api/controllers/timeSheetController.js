@@ -100,11 +100,11 @@ export const deleteTimeEntry = async (req, res) => {
     await pool
       .request()
       .input("TaskId", sql.Int, id)
-      .input("UserId", sql.Int, userId)
+      .input("ModifiedBy", sql.Int, userId)
       .query(
         `UPDATE TASKS SET 
-          IsActive=0 
-          ModifiedBy=@UserId,
+          IsActive=0,
+          ModifiedBy=@ModifiedBy,
           ModifiedDate=GETDATE()
         WHERE 
           TaskId=@TasKId `

@@ -18,6 +18,7 @@ function AppLayout({ children }) {
           paddingBottom: "7.5rem",
           position: "relative",
           backgroundColor: "rgba(0, 0, 0, 0.04)",
+          zoom: "85%",
         }}
       >
         <Toolbar />

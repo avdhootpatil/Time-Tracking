@@ -69,7 +69,6 @@ const TaskModal = ({
   };
 
   const handleSave = async () => {
-    debugger;
     let postPayload = getTaskPostPayload(date, currentTask);
     let response = await saveTask(postPayload, user?.token);
     if (response.status === "success") {

@@ -5,7 +5,6 @@ const httpClient = () => {
     get: (url, config) =>
       fetch(`${baseURL}${url}`, {
         method: "GET",
-        mode: "cors",
         headers: {
           "Content-Type": "application/json",
           ...config?.headers,
@@ -15,7 +14,6 @@ const httpClient = () => {
       fetch(`${baseURL}${url}`, {
         method: "POST",
         body: JSON.stringify(payload),
-        mode: "cors",
         headers: {
           ...config?.headers,
           "Content-Type": "application/json",
@@ -25,7 +23,6 @@ const httpClient = () => {
       fetch(`${baseURL}${url}`, {
         method: "PUT",
         body: JSON.stringify(payload),
-        mode: "cors",
         headers: {
           "Content-Type": "application/json",
           ...config?.headers,

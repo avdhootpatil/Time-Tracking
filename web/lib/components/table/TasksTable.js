@@ -69,7 +69,7 @@ const TasksTable = ({
                   </IconButton>
                 </StyledTableCell>
                 <StyledTableCell sx={{ padding: 0, width: "40px" }}>
-                  <IconButton onClick={onDelete(task.taskId)}>
+                  <IconButton onClick={onDelete(index)}>
                     <DeleteIcon color="error" />
                   </IconButton>
                 </StyledTableCell>

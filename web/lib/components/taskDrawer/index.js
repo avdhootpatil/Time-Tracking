@@ -1,25 +1,16 @@
 "use client";
 
-import {
-  getTaskObject,
-  getTaskPostPayload,
-  getUserFromLocalStorage,
-} from "@/lib/helperFunctions";
+import { getTaskObject, getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { getClients } from "@/lib/services/client";
 import { getProjects } from "@/lib/services/project";
-import {
-  addTimeEntry,
-  deleteTask,
-  getTaskByDate,
-} from "@/lib/services/timesheet";
+import { deleteTask, getTaskByDate } from "@/lib/services/timesheet";
 import { Box, Button, Drawer } from "@mui/material";
 import dayjs from "dayjs";
-import { produce } from "immer";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import DeleteConfirmDialog from "../deleteConfirmDialog";
 import { TaskModal } from "../modal";
 import { TasksTable } from "../table";
-import DeletePopper from "../deletePopper";
 
 const TasksDrawer = ({
   open = false,
@@ -36,10 +27,8 @@ const TasksDrawer = ({
   const [isTaskModalVisible, setIsTaskModalVisible] = useState(false);
 
   //delete popper states
-  const [anchorEl, setAnchorEl] = useState(null);
   const [isDeletePopperOpen, setIsDeletePopperOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState(0);
-
+  const [currentIndex, setCurrentIndex] = useState(0);
   useEffect(() => {
     (async () => {
       if (open && selectedDate) {
@@ -100,17 +89,6 @@ const TasksDrawer = ({
     setIsTaskModalVisible(true);
   };
 
-  const handleSave = async () => {
-    let postPaylod = getTaskPostPayload(selectedDate, tasksForSelectedDay);
-    let response = await addTimeEntry(postPaylod, user?.token);
-    if (response.status === "success") {
-      toast.success("Saved successfully.");
-      onClose();
-    } else {
-      toast.error("Unable to save");
-    }
-  };
-
   const handleCloseModal = (isGetCallNeeded) => async (e) => {
     if (isGetCallNeeded) {
       await getTasksForDay();
@@ -118,21 +96,22 @@ const TasksDrawer = ({
     setIsTaskModalVisible(false);
   };
 
-  const handleDeleteTask = (id) => (e) => {
-    setDeleteId(id);
-    setAnchorEl(e.currentTarget);
+  const handleDeleteTask = (index) => (e) => {
+    setCurrentIndex(index);
     setIsDeletePopperOpen(true);
   };
 
-  const handleDeletConfirm = async (e) => {
-    setIsDeletePopperOpen(false);
-    setAnchorEl(null);
+  const handleDeletConfirm = (index) => async (e) => {
+    let deleteId = tasksForSelectedDay[index]["taskId"];
     let response = await deleteTask(deleteId, user?.token);
     if (response.status === "success") {
       toast.success("Task deleted successfully.");
+      await getTasksForDay();
     } else {
       toast.error("Unable to delete task.");
     }
+
+    setIsDeletePopperOpen(false);
   };
 
   return (
@@ -148,19 +127,7 @@ const TasksDrawer = ({
             onEdit={handleEditTask}
             onDelete={handleDeleteTask}
           />
-          <Button
-            variant="contained"
-            sx={{
-              width: "7rem",
-              float: "right",
-              marginRight: "2rem",
-              marginTop: "2rem",
-              padding: "5px",
-            }}
-            onClick={handleSave}
-          >
-            Save
-          </Button>
+
           <Button
             onClick={onClose}
             variant="contained"
@@ -184,15 +151,11 @@ const TasksDrawer = ({
           projects={projects}
           date={selectedDate}
         />
-        <DeletePopper
+        <DeleteConfirmDialog
           open={isDeletePopperOpen}
-          anchorEl={anchorEl}
-          onCancel={() => {
-            debugger;
-            setAnchorEl(null);
-            setIsDeletePopperOpen(false);
-          }}
+          onCancel={setIsDeletePopperOpen}
           onConfirm={handleDeletConfirm}
+          currentIndex={currentIndex}
         />
       </Drawer>
     </>

@@ -23,4 +23,10 @@ export const routes = [
     name: "Project",
     children: [],
   },
+  {
+    id: 4,
+    path: "/reports",
+    name: "Reports",
+    children: [],
+  },
 ];

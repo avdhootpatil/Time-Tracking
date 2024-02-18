@@ -91,3 +91,75 @@ export const hoursChipType = (hours) => {
 
   return type;
 };
+
+/**
+ * Function to format hours logged for the current month
+ * @param {Array} days
+ * @returns
+ */
+export const hourLoggedForMonth = (days) => {
+  let hours = {};
+  days.forEach((day) => {
+    hours[day.date] = day.hoursLogged;
+  });
+
+  return hours;
+};
+
+export const updateHoursLogged = (currentMonth, daysOfMonth, hoursLogged) => {
+  let days = daysOfMonth[currentMonth];
+  days.forEach((day) => {
+    if (hoursLogged.hasOwnProperty(day.date)) {
+      day.hoursLogged = hoursLogged[day.date];
+    }
+  });
+
+  return daysOfMonth;
+};
+
+export const getProjectTime = (projects, employeeTime) => {
+  let employeeProject = {};
+  employeeTime.forEach((project) => {
+    employeeProject[project.projectName] = project;
+  });
+
+  let projectTime = [];
+  projects.forEach((project) => {
+    let newProject = {};
+    newProject["id"] = project.id;
+    newProject["name"] = project.name;
+    newProject["time"] = employeeProject[project.name]?.timeOnBoard || 0;
+
+    projectTime.push(newProject);
+  });
+
+  return projectTime;
+};
+
+export const formatBillingSheet = (billingSheet, projects) => {
+  let newSheet = [];
+  let { workingDays, totalHours, employeesTime } = billingSheet;
+
+  Object.keys(employeesTime).forEach((employee) => {
+    let newEmployee = {};
+    newEmployee["name"] = employee;
+    newEmployee["workingDays"] = workingDays;
+    newEmployee["totalHours"] = totalHours;
+    newEmployee["projectTime"] = getProjectTime(
+      projects,
+      employeesTime[employee]
+    );
+
+    newSheet.push(newEmployee);
+  });
+
+  return newSheet;
+};
+
+export const getTotalAzureHours = (projects) => {
+  let totalHours = 0;
+  projects.forEach((project) => {
+    totalHours = totalHours + project.time;
+  });
+  return totalHours;
+};
