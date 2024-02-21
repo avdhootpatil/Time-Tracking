@@ -43,6 +43,7 @@ export default function HeaderMenuItem({ route }) {
             key={menuItem.id}
             sx={{
               padding: "10px 10px 10px 10px",
+              fontWeight: "bold !important",
             }}
           >
             {menuItem.name}
@@ -65,7 +66,10 @@ export default function HeaderMenuItem({ route }) {
           {subMenu(route.children)}
         </div>
       ) : (
-        <Link href={route.path} style={{ textDecoration: "none" }}>
+        <Link
+          href={route.path}
+          style={{ textDecoration: "none", fontWeight: "bold" }}
+        >
           {route.name}
         </Link>
       )}

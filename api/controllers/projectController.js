@@ -50,16 +50,7 @@ export const getProjects = async (req, res) => {
   try {
     let pool = req.db;
 
-    let result = await pool.request().query(`
-      SELECT
-        ProjectId as id,
-        ProjectName as name ,
-        ProjectDescription as description
-      FROM
-        PROJECTS
-      WHERE
-        IsActive=1 
-      `);
+    let result = await pool.request().execute("GetProjects");
 
     let projects = result.recordset;
 

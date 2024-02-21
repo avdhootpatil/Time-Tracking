@@ -34,7 +34,9 @@ function ClientTable({
       }}
     >
       <Table sx={{ minWidth: 700 }} size="small">
-        <TableHead className="background-color-light">
+        <TableHead
+        // className="background-color-light"
+        >
           <TableRow>
             <StyledTableCell sx={{ fontWeight: "bold" }}>
               Client Name

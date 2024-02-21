@@ -123,7 +123,7 @@ export const exportTimesheet = async (req, res) => {
 export const getBillingSheet = async (req, res) => {
   try {
     const pool = req.db;
-    const { startDate, endDate } = req.query;
+    let { startDate, endDate } = req.query;
 
     if (startDate === "" || startDate === "null") {
       startDate = null;
@@ -192,16 +192,7 @@ export const exportBillingSheet = async (req, res) => {
 
     let billingSheet = new BillingSheet(workingDays, totalHours, employeesTime);
 
-    let pResult = await pool.request().query(`
-    SELECT
-      ProjectId as id,
-      ProjectName as name ,
-      ProjectDescription as description
-    FROM
-      PROJECTS
-    WHERE
-      IsActive=1 
-    `);
+    let pResult = await pool.request().execute("GetProjects");
 
     let projects = pResult.recordset;
 

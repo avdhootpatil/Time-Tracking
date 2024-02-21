@@ -11,6 +11,7 @@ import {
   hourLoggedForMonth,
   updateHoursLogged,
 } from "@/lib/helperFunctions";
+import { Box } from "@mui/material";
 
 const Calendar = () => {
   const tempCurrentMonth = dayjs().month();
@@ -152,34 +153,36 @@ const Calendar = () => {
   };
 
   return (
-    <>
-      <div className="calendar-grid">
-        <CalendarNavbar
-          handleIncrementMonth={handleIncrementMonth}
-          handleDecrementMonth={handleDecrementMonth}
-          handleIncrementYear={handleIncrementYear}
-          handleDecrementYear={handleDecrementYear}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-        />
-        {daysInWeek?.map((val) => (
-          <div key={val} className="calendar-day-cell">
-            {val}
-          </div>
-        ))}
+    <Box sx={{ padding: "10px", height: "100%" }}>
+      <CalendarNavbar
+        handleIncrementMonth={handleIncrementMonth}
+        handleDecrementMonth={handleDecrementMonth}
+        handleIncrementYear={handleIncrementYear}
+        handleDecrementYear={handleDecrementYear}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+      />
+      <Box sx={{ display: "flex", justifyContent: "center", height: "100%" }}>
+        <div className="calendar-grid">
+          {daysInWeek?.map((val) => (
+            <div key={val} className="calendar-day-cell">
+              {val}
+            </div>
+          ))}
 
-        <CalendarDates
-          onTaskDrawerOpen={handleOpenTasksDrawer}
-          daysOfMonth={daysOfMonth[selectedMonth]}
-          todaysDate={todaysDate}
-        />
-      </div>
+          <CalendarDates
+            onTaskDrawerOpen={handleOpenTasksDrawer}
+            daysOfMonth={daysOfMonth[selectedMonth]}
+            todaysDate={todaysDate}
+          />
+        </div>
+      </Box>
       <TasksDrawer
         open={openTasksDrawer}
         onClose={handleClose}
         selectedDate={selectedDate}
       />
-    </>
+    </Box>
   );
 };
 

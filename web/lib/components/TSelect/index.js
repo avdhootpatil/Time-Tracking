@@ -65,7 +65,7 @@ function TSelect({
             error={error}
             variant="outlined"
             placeholder={placeholder}
-            sx={{ margin: "0px" }}
+            sx={{ margin: "0px !important" }}
           />
         )}
         disabled={disabled}

@@ -6,7 +6,7 @@ import { ClientModal } from "@/lib/components/modal";
 import ClientTable from "@/lib/components/table/ClientTable";
 import { getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { deleteClient, getClientList } from "@/lib/services/client";
-import { Pagination } from "@mui/material";
+import { Box, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 

@@ -6,10 +6,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  getCardHeaderUtilityClass,
 } from "@mui/material";
-import EmptyComponent from "../emptyComponent";
 import { useEffect, useState } from "react";
+import EmptyComponent from "../emptyComponent";
 
 const BillingSheetTable = ({ projects = [], billingSheet = [] }) => {
   const [tableHeader, setTableHeader] = useState([]);

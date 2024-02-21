@@ -98,7 +98,11 @@ function Reports() {
     if (pageFilter?.id === 1) {
       await getTimesheetDetails(startDate, endDate, user?.token);
     } else {
-      await getBillingSheetDetails(startDate, endDate, user?.token);
+      if (!startDate || !endDate) {
+        toast.error("Start date, End date is required");
+      } else {
+        await getBillingSheetDetails(startDate, endDate, user?.token);
+      }
     }
   };
 
