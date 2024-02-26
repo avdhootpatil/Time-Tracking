@@ -185,7 +185,7 @@ export const getClientById = async (req, res) => {
 
     let client = new Client(ClientId, ClientName, ClientDescription);
 
-    res.send(client);
+    res.status(200).send(client);
   } catch (e) {
     res.status(400).send({ error: e });
   }
