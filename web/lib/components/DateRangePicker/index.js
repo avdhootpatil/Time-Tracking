@@ -2,11 +2,11 @@
 
 import { FormControl, FormHelperText } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
+import PickerWithJoyField from "../datePicker";
 import "./index.css";
 
 export default function DateRangePicker({
@@ -52,7 +52,6 @@ export default function DateRangePicker({
   return (
     <div>
       <FormControl
-        variant="outlined"
         sx={
           endDateVisibility
             ? {
@@ -67,6 +66,7 @@ export default function DateRangePicker({
               }
         }
         className="form-row-margin-bottom"
+        size="small"
       >
         <FormHelperText
           sx={
@@ -86,14 +86,9 @@ export default function DateRangePicker({
         </FormHelperText>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            inputFormat="DD/MM/YYYY"
+          <PickerWithJoyField
             value={dates?.startDate !== null ? dayjs(dates?.startDate) : null}
             onChange={handleChange("startDate")}
-            slotProps={{
-              textField: { size: "small", error: isStartDateError },
-            }}
-            size="small"
             maxDate={dates?.endDate !== null ? dayjs(dates?.endDate) : null}
           />
         </LocalizationProvider>
@@ -108,16 +103,12 @@ export default function DateRangePicker({
           </FormHelperText>
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              inputFormat="DD/MM/YYYY"
+            <PickerWithJoyField
               value={dates?.endDate !== null ? dayjs(dates?.endDate) : null}
               onChange={handleChange("endDate")}
               minDate={
                 dates?.startDate !== null ? dayjs(dates?.startDate) : null
               }
-              slotProps={{
-                textField: { size: "small", error: isEndDateError },
-              }}
             />
           </LocalizationProvider>
         </FormControl>

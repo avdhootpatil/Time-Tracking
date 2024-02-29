@@ -1,8 +1,6 @@
-* {
-  font-size: 12px;
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .page-container {
   padding: 40px;
@@ -10,28 +8,28 @@
   border-radius: 10px;
   height: 100%;
 }
-/* 
-.MuiTableCell-head {
-  background-color: #444;
-  color: white;
-} */
 
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  width: 70%;
-  height: 90%;
+  grid-gap: 1px;
+  width: 100%;
+  height: 100%;
 }
 
 .calendar-cell {
   text-align: end;
   padding-right: 2rem;
   padding-top: 2rem;
-  border: 1px solid #e6e6e6;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   user-select: none;
   cursor: pointer;
+}
+
+.calendar-grid:not(:last-child) {
+  border-right: none;
 }
 
 .calendar-day-cell {
@@ -42,4 +40,8 @@
   font-weight: bold;
   user-select: none;
   width: 100%;
+}
+
+ul.MuiAutocomplete-listbox {
+  z-index: 1500 !important;
 }

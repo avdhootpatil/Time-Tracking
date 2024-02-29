@@ -84,7 +84,7 @@ function ProjectPage() {
   };
 
   return (
-    <div className="page-container">
+    <div>
       <ProjectTable
         projects={projects?.items || []}
         onAdd={handleAdd}

@@ -1,12 +1,14 @@
 import { getTaskObject, getTaskPostPayload } from "@/lib/helperFunctions";
 import { saveTask } from "@/lib/services/timesheet";
-import { Box, FormControl, Modal, TextField, Typography } from "@mui/material";
+import { Button } from "@mui/joy";
+import { Box, Modal } from "@mui/material";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { modalStyle } from "../../styles/modalStyles";
-import Select from "../select";
-import StyledButton from "../styledButton";
+import Select from "../Select";
+import TextField from "../TextField";
+import OutlinedInput from "../OulinedInput";
 
 const TaskModal = ({
   isModalOpen = false,
@@ -95,133 +97,109 @@ const TaskModal = ({
         className="container-margin"
       >
         <>
-          <Typography>
-            <h3>Task</h3>
-          </Typography>
-          <Box
-            sx={{
-              "& .MuiTextField-root": { m: 1 },
-            }}
-            noValidate
-            autoComplete="off"
-            className="container-margin"
-          >
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginRight: "1%", marginBottom: "10px" }}
-            >
+          <div>
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Task Name
+            </label>
+            <div className="mt-2">
               <TextField
-                size="small"
                 onChange={handleChange("taskName")}
                 value={currentTask?.taskName}
-                multiline
-                rows={2}
-                sx={{ width: "100%" }}
-                placeholder="Task Name"
               />
-            </FormControl>
-
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <TextField
-                size="small"
+            </div>
+          </div>
+          <div className="mt-2">
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Estimate Value
+            </label>
+            <div className="mt-2">
+              <OutlinedInput
                 value={currentTask?.estimateValue}
                 onChange={handleChange("estimateValue")}
                 type="number"
-                sx={{ width: "100%" }}
-                placeholder="Estimate Value"
               />
-            </FormControl>
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <TextField
-                size="small"
+            </div>
+          </div>
+
+          <div className="mt-2">
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Azure Value
+            </label>
+            <div className="mt-2">
+              <OutlinedInput
                 value={currentTask?.azureValue}
                 onChange={handleChange("azureValue")}
                 type="number"
-                sx={{ width: "100%" }}
-                placeholder="Azure Value"
               />
-            </FormControl>
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <TextField
-                size="small"
+            </div>
+          </div>
+
+          <div className="mt-2">
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              User story number
+            </label>
+            <div className="mt-2">
+              <OutlinedInput
                 value={currentTask?.userStoryNumber}
                 onChange={handleChange("userStoryNumber")}
                 type="number"
-                sx={{ width: "100%" }}
-                placeholder="User Story Number"
               />
-            </FormControl>
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <TextField
-                size="small"
+            </div>
+          </div>
+
+          <div className="mt-2">
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Task number
+            </label>
+            <div className="mt-2">
+              <OutlinedInput
                 value={currentTask?.taskNumber}
                 onChange={handleChange("taskNumber")}
                 type="number"
-                sx={{ width: "100%" }}
-                placeholder="Task Number"
               />
-            </FormControl>
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <Select
-                onSelect={handleChange("client")}
-                value={currentTask?.client}
-                nameProperty="name"
-                valueProperty="id"
-                options={clients}
-                placeholder="Select Client"
-              />
-            </FormControl>
+            </div>
+          </div>
 
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <Select
-                onSelect={handleChange("project")}
-                value={currentTask?.project}
-                nameProperty="name"
-                valueProperty="id"
-                options={projects}
-                placeholder="Select Project"
-              />
-            </FormControl>
+          <div className="mt-2">
+            <Select
+              onSelect={handleChange("client")}
+              value={currentTask?.client}
+              nameProperty="name"
+              valueProperty="id"
+              options={clients}
+              label="Client"
+            />
+          </div>
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "1",
-              }}
-            >
-              <StyledButton
-                label="Save"
-                onClick={handleSave}
-                sx={{ marginRight: "10px" }}
-              />
+          <div className="mt-2">
+            <Select
+              onSelect={handleChange("project")}
+              value={currentTask?.project}
+              nameProperty="name"
+              valueProperty="id"
+              options={projects}
+              label="Project"
+            />
+          </div>
 
-              <StyledButton label="Cancel" onClick={closeModal(false)} />
-            </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "1",
+              marginTop: "10px",
+            }}
+          >
+            <Button
+              onClick={handleSave}
+              sx={{ marginRight: "10px" }}
+              variant="soft"
+            >
+              Save
+            </Button>
+            <Button onClick={closeModal(false)} variant="soft" color="danger">
+              Cancel
+            </Button>
           </Box>
         </>
       </Box>

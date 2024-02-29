@@ -5,7 +5,7 @@ import Calender from "@/lib/components/calender";
 
 function Timesheet() {
   return (
-    <div className="page-container">
+    <div>
       <Calender />
     </div>
   );

@@ -1,14 +1,8 @@
 import { getTotalAzureHours } from "@/lib/helperFunctions";
-import { StyledTableCell, StyledTableRow } from "@/lib/styles/tableStyles";
-import {
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+
 import { useEffect, useState } from "react";
 import EmptyComponent from "../emptyComponent";
+import { Table } from "@mui/joy";
 
 const BillingSheetTable = ({ projects = [], billingSheet = [] }) => {
   const [tableHeader, setTableHeader] = useState([]);
@@ -26,52 +20,35 @@ const BillingSheetTable = ({ projects = [], billingSheet = [] }) => {
   }, [projects]);
 
   return (
-    <>
-      <TableContainer
-        sx={{
-          borderRadius: "5px",
-          backgroundColor: "white",
-          borderBottom: "1px solid #ccc",
-          borderLeft: "1px solid #ccc",
-          borderRight: "1px solid #ccc",
-          marginTop: "20px",
-        }}
-      >
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {tableHeader.map((header) => (
-                <StyledTableCell>{header}</StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {billingSheet.map((employee, index) => (
-              <StyledTableRow key={index}>
-                <StyledTableCell sx={{ width: "20%" }}>
-                  {employee.name}
-                </StyledTableCell>
-                <StyledTableCell sx={{ width: "120px" }}>
-                  {employee.workingDays}
-                </StyledTableCell>
-                <StyledTableCell sx={{ width: "120px" }}>
-                  {employee.totalHours}
-                </StyledTableCell>
-                {employee.projectTime.map((project, index) => (
-                  <StyledTableCell key={project.id} sx={{ width: "120px" }}>
-                    {project.time}
-                  </StyledTableCell>
-                ))}
-                <StyledTableCell sx={{ width: "20%" }}>
-                  {getTotalAzureHours(employee.projectTime)}
-                </StyledTableCell>
-              </StyledTableRow>
+    <div className="border border-solid border-grey-500">
+      <Table borderAxis="both" size="md">
+        <thead>
+          <tr>
+            {tableHeader.map((header) => (
+              <th>{header}</th>
             ))}
-          </TableBody>
-        </Table>
-        {!billingSheet.length ? <EmptyComponent /> : null}
-      </TableContainer>
-    </>
+          </tr>
+        </thead>
+        <tbody>
+          {billingSheet.map((employee, index) => (
+            <tr key={index}>
+              <td sx={{ width: "20%" }}>{employee.name}</td>
+              <td sx={{ width: "120px" }}>{employee.workingDays}</td>
+              <td sx={{ width: "120px" }}>{employee.totalHours}</td>
+              {employee.projectTime.map((project, index) => (
+                <td key={project.id} sx={{ width: "120px" }}>
+                  {project.time}
+                </td>
+              ))}
+              <td sx={{ width: "20%" }}>
+                {getTotalAzureHours(employee.projectTime)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      {!billingSheet.length ? <EmptyComponent /> : null}
+    </div>
   );
 };
 

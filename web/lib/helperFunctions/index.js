@@ -75,21 +75,21 @@ export const getTaskPostPayload = (date, task) => {
  * @returns
  */
 export const hoursChipType = (hours) => {
-  let type = "primary";
+  let className = `inline-flex items-center rounded-md bg-blue-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
 
   if (hours == 8) {
-    type = "success";
+    className = `inline-flex items-center rounded-md bg-green-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
   }
 
   if (hours < 8) {
-    type = "warning";
+    className = `inline-flex items-center rounded-md bg-yellow-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
   }
 
   if (hours < 5) {
-    type = "error";
+    className = `inline-flex items-center rounded-md bg-red-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
   }
 
-  return type;
+  return className;
 };
 
 /**

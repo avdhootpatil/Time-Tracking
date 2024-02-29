@@ -4,13 +4,14 @@ import { getTaskObject, getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { getClients } from "@/lib/services/client";
 import { getProjects } from "@/lib/services/project";
 import { deleteTask, getTaskByDate } from "@/lib/services/timesheet";
-import { Box, Button, Drawer } from "@mui/material";
+import { Box, Drawer } from "@mui/material";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DeleteConfirmDialog from "../deleteConfirmDialog";
 import { TaskModal } from "../modal";
 import { TasksTable } from "../table";
+import { Button } from "@mui/joy";
 
 const TasksDrawer = ({
   open = false,
@@ -117,7 +118,7 @@ const TasksDrawer = ({
   return (
     <>
       <Drawer open={open} onClose={onClose} anchor="right">
-        <Box sx={{ width: "96vw" }}>
+        <Box sx={{ width: "96vw", padding: "30px" }}>
           <h1 style={{ padding: "10px" }}>
             {dayjs(selectedDate).format("DD/MM/YYYY")}
           </h1>
@@ -130,11 +131,10 @@ const TasksDrawer = ({
 
           <Button
             onClick={onClose}
-            variant="contained"
+            variant="soft"
             sx={{
               width: "7rem",
               float: "right",
-              marginRight: "2rem",
               marginTop: "2rem",
               padding: "5px",
             }}

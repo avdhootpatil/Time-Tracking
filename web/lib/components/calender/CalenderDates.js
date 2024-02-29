@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import { Chip } from "@mui/material";
 import { hoursChipType } from "@/lib/helperFunctions";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import HoursLogged from "../hoursLogged";
 
 const CalendarDates = ({
   onTaskDrawerOpen = () => {},
@@ -22,27 +22,29 @@ const CalendarDates = ({
     return (
       <>
         {daysOfMonth?.map((day) => {
-          if (!day.isDayVisible) return <div key={crypto.randomUUID()}></div>;
+          if (!day.isDayVisible)
+            return (
+              <div
+                key={crypto.randomUUID()}
+                className="border-solid border border-grey-500 px-4 py-4 bg-gray-100"
+              ></div>
+            );
           else {
             return (
               <div
                 key={crypto.randomUUID()}
-                className="calendar-cell"
+                className={`${
+                  day.date === currentDate
+                    ? `calender-cell bg-gray-100 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
+                    : `calender-cell border-solid border border-grey-500 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
+                }`}
                 id={day.date}
                 onDoubleClick={onTaskDrawerOpen(day.date)}
-                style={
-                  day.date === currentDate
-                    ? { backgroundColor: "lightGrey" }
-                    : null
-                }
               >
                 {dayjs(day.date).format("D")}
                 <div></div>
-                <Chip
-                  label={`Hours Logged : ${day.hoursLogged}`}
-                  color={hoursChipType(day.hoursLogged)}
-                  size="medium"
-                />
+
+                <HoursLogged hours={day.hoursLogged} />
               </div>
             );
           }

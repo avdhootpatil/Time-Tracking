@@ -4,14 +4,15 @@ import { getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { getClients } from "@/lib/services/client";
 import { getProjectById, saveProject } from "@/lib/services/project";
 import { projectSchema } from "@/lib/validation";
-import { Box, FormControl, Modal, OutlinedInput } from "@mui/material";
+import { Button } from "@mui/joy";
+import { Box, Modal } from "@mui/material";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import * as yup from "yup";
 import { modalStyle } from "../../styles/modalStyles";
-import TSelect from "../TSelect";
-import StyledButton from "../styledButton";
+import OutlinedInput from "../OulinedInput";
+import Select from "../Select";
 
 const ProjectModal = ({
   isModalOpen = false,
@@ -131,7 +132,6 @@ const ProjectModal = ({
   return (
     <Modal open={isModalOpen}>
       <Box
-        component="form"
         sx={{
           ...modalStyle,
           "& .MuiTextField-root": { m: 0 },
@@ -144,81 +144,78 @@ const ProjectModal = ({
         className="container-margin"
       >
         <>
-          <Box
-            component="form"
-            sx={{
-              "& .MuiTextField-root": { m: 1 },
-            }}
-            noValidate
-            autoComplete="off"
-            className="container-margin"
-          >
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginRight: "1%", marginBottom: "10px" }}
-            >
-              <OutlinedInput
-                size="small"
-                onChange={handleChange("name")}
-                value={project?.name || ""}
-                error={errors.name && errors.name.length}
-                placeholder="Project Name"
-              />
-            </FormControl>
+          <div>
+            <form className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium leading-6 text-gray-900">
+                  Project Name
+                </label>
+                <div className="mt-2">
+                  <OutlinedInput
+                    onChange={handleChange("name")}
+                    value={project?.name || ""}
+                    isError={errors.name && errors.name.length}
+                    placeholder="Project Name"
+                  />
+                </div>
+              </div>
 
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <OutlinedInput
-                size="small"
-                onChange={handleChange("description")}
-                value={project?.description || ""}
-                error={errors.description && errors.description.length}
-                placeholder="Description"
-              />
-            </FormControl>
+              <div>
+                <label className="block text-sm font-medium leading-6 text-gray-900">
+                  Description
+                </label>
+                <div className="mt-2">
+                  <OutlinedInput
+                    onChange={handleChange("description")}
+                    value={project?.description || ""}
+                    isError={errors.description && errors.description.length}
+                    placeholder="Description"
+                  />
+                </div>
+              </div>
 
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <TSelect
-                valueProperty="id"
-                nameProperty="name"
-                placeholder="Select Client"
-                sx={{ margin: "0px !important" }}
-                options={clients}
-                onSelect={handleChange("client")}
-                value={project?.client || null}
-                error={errors.client && errors.client.length}
-              />
-            </FormControl>
+              <div>
+                <Select
+                  label="Client"
+                  valueProperty="id"
+                  nameProperty="name"
+                  placeholder="Select Client"
+                  sx={{ margin: "0px !important" }}
+                  options={clients}
+                  onSelect={handleChange("client")}
+                  value={project?.client || null}
+                  isError={errors.client && errors.client.length}
+                />
+              </div>
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "1",
-              }}
-            >
-              <StyledButton
-                label="Save"
-                onClick={handleSave}
-                sx={{ marginRight: "10px" }}
-              />
-
-              <StyledButton
-                label="Cancel"
-                onClick={() => {
-                  closeModal(false);
-                  clearFields();
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "1",
                 }}
-              />
-            </Box>
-          </Box>
+              >
+                <Button
+                  onClick={handleSave}
+                  sx={{ marginRight: "10px" }}
+                  variant="soft"
+                >
+                  Save
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    closeModal(false);
+                    clearFields();
+                  }}
+                  variant="soft"
+                  color="danger"
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </form>
+          </div>
         </>
       </Box>
     </Modal>

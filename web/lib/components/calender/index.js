@@ -1,17 +1,17 @@
 "use client";
 
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import TasksDrawer from "../taskDrawer";
-import CalendarDates from "./CalenderDates";
-import CalendarNavbar from "./CalenderNavbar";
-import { getHoursLogged } from "@/lib/services/timesheet";
 import {
   getUserFromLocalStorage,
   hourLoggedForMonth,
   updateHoursLogged,
 } from "@/lib/helperFunctions";
+import { getHoursLogged } from "@/lib/services/timesheet";
 import { Box } from "@mui/material";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import TasksDrawer from "../taskDrawer";
+import CalendarDates from "./CalenderDates";
+import CalendarNavbar from "./CalenderNavbar";
 
 const Calendar = () => {
   const tempCurrentMonth = dayjs().month();
@@ -153,7 +153,7 @@ const Calendar = () => {
   };
 
   return (
-    <Box sx={{ padding: "10px", height: "100%" }}>
+    <Box sx={{ height: "100%" }}>
       <CalendarNavbar
         handleIncrementMonth={handleIncrementMonth}
         handleDecrementMonth={handleDecrementMonth}
@@ -164,8 +164,11 @@ const Calendar = () => {
       />
       <Box sx={{ display: "flex", justifyContent: "center", height: "100%" }}>
         <div className="calendar-grid">
-          {daysInWeek?.map((val) => (
-            <div key={val} className="calendar-day-cell">
+          {daysInWeek?.map((val, index) => (
+            <div
+              key={val}
+              className={`flex flex-row justify-center border-solid border border-grey-500 px-3 py-3 font-medium`}
+            >
               {val}
             </div>
           ))}

@@ -1,13 +1,15 @@
+import { getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { getClientById, saveClient } from "@/lib/services/client";
-import { Box, FormControl, Modal, OutlinedInput } from "@mui/material";
+import { clientSchema } from "@/lib/validation";
+import { Button } from "@mui/joy";
+import { Box, Modal } from "@mui/material";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { modalStyle } from "../../styles/modalStyles";
-import StyledButton from "../styledButton";
-import { getUserFromLocalStorage } from "@/lib/helperFunctions";
-import { clientSchema } from "@/lib/validation";
 import * as yup from "yup";
+import { modalStyle } from "../../styles/modalStyles";
+import OutlinedInput from "../OulinedInput";
+import TextField from "../TextField";
 
 const ClientModal = ({
   isModalOpen = false,
@@ -80,7 +82,9 @@ const ClientModal = ({
     setErrors(nextErrors);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    debugger;
+    e.preventDefault();
     try {
       SCHEMA.validateSync(client, { abortEarly: false });
       let response = await saveClient(
@@ -113,7 +117,6 @@ const ClientModal = ({
   return (
     <Modal open={isModalOpen}>
       <Box
-        component="form"
         sx={{
           ...modalStyle,
           "& .MuiTextField-root": { m: 0 },
@@ -121,68 +124,67 @@ const ClientModal = ({
           maxWidth: 1000,
           padding: "30px",
         }}
-        noValidate
         autoComplete="off"
-        className="container-margin"
       >
         <>
-          <Box
-            sx={{
-              "& .MuiTextField-root": { m: 1 },
-            }}
-            noValidate
-            autoComplete="off"
-            className="container-margin"
-          >
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginRight: "1%", marginBottom: "10px" }}
-            >
-              <OutlinedInput
-                size="small"
-                onChange={handleChange("name")}
-                value={client?.name || ""}
-                error={errors.name && errors.name.length}
-                placeholder="Client Name"
-              />
-            </FormControl>
+          <div>
+            <form className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium leading-6 text-gray-900">
+                  Client Name
+                </label>
+                <div className="mt-2">
+                  <OutlinedInput
+                    onChange={handleChange("name")}
+                    value={client?.name || ""}
+                    isError={errors.name && errors.name.length}
+                    placeholder="Client Name"
+                  />
+                </div>
+              </div>
 
-            <FormControl
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: "10px" }}
-              className="form-row-margin-bottom"
-            >
-              <OutlinedInput
-                size="small"
-                onChange={handleChange("description")}
-                value={client?.description || ""}
-                error={errors.description && errors.description.length}
-                placeholder="Description"
-              />
-            </FormControl>
+              <div>
+                <label className="block text-sm font-medium leading-6 text-gray-900">
+                  Description
+                </label>
+                <div className="mt-2">
+                  <TextField
+                    onChange={handleChange("description")}
+                    value={client?.description || ""}
+                    isError={errors.description && errors.description.length}
+                    placeholder="Description"
+                  />
+                </div>
+              </div>
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "1",
-              }}
-            >
-              <StyledButton
-                label="Save"
-                onClick={handleSave}
-                sx={{ marginRight: "10px" }}
-              />
-
-              <StyledButton
-                label="Cancel"
-                onClick={() => {
-                  closeModal(false);
-                  clearFields();
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "1",
                 }}
-              />
-            </Box>
-          </Box>
+              >
+                <Button
+                  onClick={handleSave}
+                  sx={{ marginRight: "10px" }}
+                  variant="soft"
+                >
+                  Save
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    closeModal(false);
+                    clearFields();
+                  }}
+                  variant="soft"
+                  color="danger"
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </form>
+          </div>
         </>
       </Box>
     </Modal>

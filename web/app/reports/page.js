@@ -15,7 +15,8 @@ import {
   getBillingSheet,
   getTimeSheet,
 } from "@/lib/services/reports";
-import { Box, Button } from "@mui/material";
+import { Button } from "@mui/joy";
+import { Box } from "@mui/material";
 import { saveAs } from "file-saver";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
@@ -138,25 +139,26 @@ function Reports() {
   };
 
   return (
-    <div className="page-container">
+    <div>
       <Box sx={{ display: "flex", padding: "10px" }}>
         {pageFilterOptions.map((filter, index) => (
           <Button
-            variant={filter.id === pageFilter?.id ? "contained" : "outlined"}
+            variant={filter.id === pageFilter?.id ? "solid" : "soft"}
             sx={{ marginRight: "20px" }}
             key={filter.id}
             onClick={handleChangePageFilter(index)}
+            size="sm"
           >
             {filter.name}
           </Button>
         ))}
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center" }}>
+      <div className="flex flex-row align-bottom">
         <Box
           sx={{
             padding: "10px",
-            width: "50%",
+            width: "40%",
           }}
         >
           <DateRangePicker
@@ -168,23 +170,24 @@ function Reports() {
             onChange={handleChange}
           />
         </Box>
-        <Box sx={{ marginTop: "20px", marginRight: "20px" }}>
-          <Button variant="contained" onClick={handleSearch}>
+        <Box sx={{ marginTop: "35px", marginRight: "20px" }}>
+          <Button variant="soft" onClick={handleSearch} size="sm">
             Go
           </Button>
         </Box>
-        <Box sx={{ marginTop: "20px" }}>
+        <Box sx={{ marginTop: "35px" }}>
           <Button
-            variant="contained"
+            variant="soft"
             onClick={handleTimesheetExport}
             disabled={
               pageFilter?.id === 1 ? !tasks.length : !billingSheet.length
             }
+            size="sm"
           >
             Export To Excel
           </Button>
         </Box>
-      </Box>
+      </div>
 
       <Box sx={{ marginTop: "20px" }}>
         {pageFilter?.id === 1 ? (

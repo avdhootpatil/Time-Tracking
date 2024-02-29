@@ -4,13 +4,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   IconButton,
-  Table,
   TableBody,
   TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
 import EmptyComponent from "../emptyComponent";
+import { Button, Table } from "@mui/joy";
 
 const TasksTable = ({
   tasks = [],
@@ -19,67 +19,69 @@ const TasksTable = ({
   onDelete = () => {},
 }) => {
   return (
-    <>
-      <TableContainer
-        sx={{ minHeight: "80vh", borderBottom: "1px solid lightGrey" }}
-      >
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Task Name</StyledTableCell>
-              <StyledTableCell>Estimate Value</StyledTableCell>
-              <StyledTableCell>Azure Value</StyledTableCell>
-              <StyledTableCell>User Story No.</StyledTableCell>
-              <StyledTableCell>Task No.</StyledTableCell>
-              <StyledTableCell>Client</StyledTableCell>
-              <StyledTableCell>Project</StyledTableCell>
+    <div className="border border-solid border-grey-500">
+      <Table borderAxis="both" size="sm">
+        <thead>
+          <tr>
+            <th>Task Name</th>
+            <th>Estimate Value</th>
+            <th>Azure Value</th>
+            <th>User Story No.</th>
+            <th>Task No.</th>
+            <th>Client</th>
+            <th>Project</th>
 
-              <StyledTableCell></StyledTableCell>
-              <StyledTableCell>
-                <IconButton onClick={onAdd}>
-                  <AddIcon sx={{ color: "white" }} />
-                </IconButton>
-              </StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tasks.map((task, index) => (
-              <StyledTableRow key={task.taskId}>
-                <StyledTableCell sx={{ width: "20%" }}>
-                  {task?.taskName}
-                </StyledTableCell>
-                <StyledTableCell sx={{ width: "120px" }}>
-                  {task?.estimateValue}
-                </StyledTableCell>
-                <StyledTableCell sx={{ width: "120px" }}>
-                  {task?.azureValue}
-                </StyledTableCell>
-                <StyledTableCell sx={{ width: "120px" }}>
-                  {task?.userStoryNumber}
-                </StyledTableCell>
-                <StyledTableCell sx={{ width: "120px" }}>
-                  {task?.taskNumber}
-                </StyledTableCell>
-                <StyledTableCell>{task?.client?.name}</StyledTableCell>
-                <StyledTableCell>{task?.project?.name}</StyledTableCell>
+            <th>
+              <div className="flex flex-row justify-end px-2">
+                <Button
+                  size="sm"
+                  variant="soft"
+                  color="neutral"
+                  onClick={onAdd}
+                  endDecorator={<AddIcon />}
+                />
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.map((task, index) => (
+            <tr key={task.taskId}>
+              <td sx={{ width: "20%" }}>{task?.taskName}</td>
+              <td sx={{ width: "120px" }}>{task?.estimateValue}</td>
+              <td sx={{ width: "120px" }}>{task?.azureValue}</td>
+              <td sx={{ width: "120px" }}>{task?.userStoryNumber}</td>
+              <td sx={{ width: "120px" }}>{task?.taskNumber}</td>
+              <td>{task?.client?.name}</td>
+              <td>{task?.project?.name}</td>
 
-                <StyledTableCell sx={{ padding: 0, width: "20px" }}>
-                  <IconButton onClick={onEdit(index)}>
-                    <EditIcon color="primary" />
-                  </IconButton>
-                </StyledTableCell>
-                <StyledTableCell sx={{ padding: 0, width: "40px" }}>
-                  <IconButton onClick={onDelete(index)}>
-                    <DeleteIcon color="error" />
-                  </IconButton>
-                </StyledTableCell>
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {!tasks.length ? <EmptyComponent /> : null}
-      </TableContainer>
-    </>
+              <td>
+                <div className="flex flex-row justify-end">
+                  <Button
+                    size="sm"
+                    variant="plain"
+                    color="neutral"
+                    onClick={onEdit(index)}
+                    sx={{ marginRight: "10px" }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="soft"
+                    color="danger"
+                    onClick={onDelete(index)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      {!tasks.length ? <EmptyComponent /> : null}
+    </div>
   );
 };
 

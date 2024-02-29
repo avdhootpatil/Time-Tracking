@@ -1,13 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
-import {
-  FormControl,
-  FormHelperText,
-  Autocomplete,
-  TextField,
-} from "@mui/material";
-import "./index.css";
+import { Autocomplete } from "@mui/joy";
+import { useEffect, useState } from "react";
+import TextField from "../TextField";
+import ClearIcon from "@mui/icons-material/Clear";
 
 function Select({
   value = null,
@@ -15,62 +11,86 @@ function Select({
   options = [],
   label = "",
   disabled = false,
-  error = false,
+  isError = false,
   nameProperty = "name",
   valueProperty = "value",
   sx = null,
   isDefaultSelect = false,
   placeholder = "Select an option",
   isRequired = false,
+  isClearable = false,
+  isMulti = false,
+  callback = null,
 }) {
+  const [data, setData] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(null);
+  const [inputValue, setInputValue] = useState("");
+
   useEffect(() => {
-    if (isDefaultSelect && options.length > 0) {
-      const defaultOption = options.find((option) => option.isDefault);
-      if (defaultOption) {
-        onSelect(defaultOption);
+    (async () => {
+      let currentValue = null;
+      let selectOptions = [];
+      if (callback !== null) {
+        let response = await callback(params);
+        if (response.status === "success") {
+          selectOptions = response.data;
+        }
+      } else {
+        selectOptions = options;
       }
-    }
-  }, [isDefaultSelect, options, onSelect]);
+
+      if (value !== null && value !== undefined) {
+        currentValue = selectOptions.find(
+          (option) => option[valueProperty] === value[valueProperty]
+        );
+      }
+      if (currentValue) {
+        setSelectedValue(currentValue);
+      }
+      setData(selectOptions);
+    })();
+  }, [value]);
 
   const handleChange = (event, newValue) => {
-    event.stopPropagation();
-    onSelect(newValue);
-  };
-
-  const getOptionLabel = (option) => {
-    return option[nameProperty] || "";
+    event.preventDefault();
+    if (typeof onSelect === "function") onSelect(newValue);
+    setSelectedValue(newValue);
   };
 
   return (
-    <FormControl variant="outlined" sx={{ width: "100%", ...sx }}>
-      <FormHelperText
-        sx={{ marginLeft: "0px" }}
-        className={isRequired ? "required" : ""}
+    <div>
+      <label
+        htmlFor="first-name"
+        className="block text-sm font-medium leading-6 text-gray-900"
       >
         {label}
-      </FormHelperText>
-      <Autocomplete
-        disablePortal
-        disableClearable={true}
-        options={options}
-        value={value === undefined ? "" : value}
-        onChange={handleChange}
-        getOptionLabel={getOptionLabel}
-        isOptionEqualToValue={(option, value) => {
-          return option[valueProperty] === value[valueProperty];
-        }}
-        size="small"
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            error={error}
-            variant="outlined"
-            placeholder={placeholder}
-          />
-        )}
-        disabled={disabled}
-      />
-    </FormControl>
+      </label>
+      <div className="mt-2">
+        <Autocomplete
+          error={isError}
+          clearIcon={isClearable ? <ClearIcon fontSize="small" /> : null}
+          value={selectedValue}
+          onChange={handleChange}
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue);
+          }}
+          inputValue={inputValue}
+          isOptionEqualToValue={(option, value) => option.name === value.name}
+          disabled={disabled}
+          getOptionLabel={(option) => option?.[nameProperty] || ""}
+          options={data}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              placeholder={placeholder}
+              sx={{ margin: "0px !important", ...sx }}
+            />
+          )}
+          multiple={isMulti}
+        />
+      </div>
+    </div>
   );
 }
 
