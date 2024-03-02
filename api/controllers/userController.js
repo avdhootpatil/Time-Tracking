@@ -1,21 +1,18 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sql from "mssql";
 import { User } from "../models/index.js";
 import { loginSchema, userSchema } from "../schema/index.js";
+import {
+  checkEmailService,
+  getUsersService,
+  registerUserService,
+} from "../services/userService.js";
 
 export const checkEmail = async (req, res, next) => {
   try {
-    let pool = req.db;
-
     let { userEmail } = req.body;
 
-    let result = await pool.request().input("UserEmail", sql.VarChar, userEmail)
-      .query(`
-        SELECT *
-        FROM USERS
-        WHERE UserEmail = @UserEmail;
-    `);
+    let result = await checkEmailService(userEmail);
 
     //check type
     let type = req.url.split("/")[1];
@@ -46,28 +43,12 @@ export const checkEmail = async (req, res, next) => {
 
 export const registerUser = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { userName, userEmail, password } = req.body;
 
     let hashedPassword = await bcrypt.hash(password, 10);
 
     if (hashedPassword) {
-      await pool
-        .request()
-        .input("userName", sql.VarChar, userName)
-        .input("UserEmail", sql.VarChar, userEmail)
-        .input("Password", sql.VarChar, hashedPassword).query(`
-        INSERT INTO USERS
-        (UserName, 
-          UserEmail, 
-          UserPassword, 
-          IsActive)
-          VALUES
-          (@UserName, 
-              @UserEmail,
-              @Password,
-              1)`);
+      await registerUserService(userName, userEmail, hashedPassword);
       res.status(201).send({ message: "User created successfully" });
     } else {
       throw new Error("Password not hashed succussfully");
@@ -172,12 +153,8 @@ export const validateUser = async (req, res, next) => {
 
 export const getUsers = async (req, res) => {
   try {
-    let pool = req.db;
-    let users = await pool.query(
-      `SELECT UserId as id, UserName as name, UserEmail as email FROM Users ORDER BY UserId ASC`
-    );
-
-    res.status(200).send(users.recordset);
+    let users = await getUsersService();
+    res.status(200).send(users);
   } catch (err) {
     console.log(err);
     res.status(500).send({ message: err.message });

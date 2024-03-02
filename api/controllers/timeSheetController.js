@@ -1,4 +1,5 @@
-import sql from "mssql";
+import camelCaseKeys from "camelcase-keys";
+import { tasksByDate } from "../helperFunctions.js";
 import {
   Client,
   Project,
@@ -7,26 +8,29 @@ import {
   User,
 } from "../models/index.js";
 import { taskSchema } from "../schema/index.js";
-import { tasksByDate } from "../helperFunctions.js";
-import camelCaseKeys from "camelcase-keys";
+import {
+  addTimeEntryService,
+  dailyHoursLoggedService,
+  deleteTimeEntryService,
+  getTimeSheetDetailsyUserIdService,
+  gettasksbydateService,
+  updateTimeEntryService,
+} from "../services/timeSheetService.js";
 
 export const getTimeSheetDetailsyUserId = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { startDate, endDate, userId } = req.body;
 
     if (!startDate || !endDate)
       return res.status(400).send({ message: "Missing parameters" });
 
-    let result = await pool
-      .request()
-      .input("startDate", sql.VarChar, startDate)
-      .input("endDate", sql.VarChar, endDate)
-      .input("userId", sql.Int, userId)
-      .execute("GetTasksByUserId");
+    let timeSheetDetails = await getTimeSheetDetailsyUserIdService(
+      startDate,
+      endDate,
+      userId
+    );
 
-    let timeEntries = tasksByDate(result.recordset);
+    let timeEntries = tasksByDate(timeSheetDetails);
 
     let tasks = new TaskByUserIdDTO(startDate, endDate, timeEntries);
 
@@ -38,8 +42,6 @@ export const getTimeSheetDetailsyUserId = async (req, res) => {
 
 export const gettasksbydate = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { taskDate } = req.query;
     let user = req.user;
     let userId = user.id;
@@ -49,14 +51,8 @@ export const gettasksbydate = async (req, res) => {
 
     taskDate = taskDate.split("T")[0];
 
-    let result = await pool
-      .request()
-      .input("UserId", sql.Int, userId)
-      .input("TaskDate", sql.DateTime, taskDate)
-      .execute("GetTaskByDate");
-
     //get result and convert the client, project, user in object and attche it to the response.
-    let tasks = result.recordset;
+    let tasks = await gettasksbydateService(userId, taskDate);
 
     tasks.forEach((task) => {
       //client
@@ -89,7 +85,6 @@ export const gettasksbydate = async (req, res) => {
 
 export const deleteTimeEntry = async (req, res) => {
   try {
-    let pool = req.db;
     let { id } = req.params;
     let userId = req.user.id;
 
@@ -97,18 +92,7 @@ export const deleteTimeEntry = async (req, res) => {
       throw new Error("Invalid task id");
     }
 
-    await pool
-      .request()
-      .input("TaskId", sql.Int, id)
-      .input("ModifiedBy", sql.Int, userId)
-      .query(
-        `UPDATE TASKS SET 
-          IsActive=0,
-          ModifiedBy=@ModifiedBy,
-          ModifiedDate=GETDATE()
-        WHERE 
-          TaskId=@TasKId `
-      );
+    await deleteTimeEntryService(id, userId);
 
     res.status(201).send({ message: "Task deleted successfully" });
   } catch (error) {
@@ -119,8 +103,6 @@ export const deleteTimeEntry = async (req, res) => {
 
 export const addTimeEntry = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { user } = req;
     let userId = user.id;
     let {
@@ -134,49 +116,17 @@ export const addTimeEntry = async (req, res) => {
       taskNumber,
     } = req.body;
 
-    await pool
-      .request()
-      .input("TaskName", sql.VarChar, taskName)
-      .input("ClientId", sql.Int, clientId)
-      .input("ProjectId", sql.Int, projectId)
-      .input("EstimateValue", sql.Int, estimateValue)
-      .input("AzureValue", sql.Int, azureValue)
-      .input("UserStoryNumber", sql.Int, userStoryNumber)
-      .input("TaskNumber", sql.Int, taskNumber)
-      .input("UserId", sql.Int, userId)
-      .input("IsActive", sql.Bit, 1)
-      .input("TaskDate", sql.DateTime, taskDate)
-      .query(
-        `INSERT INTO TASKS
-          (
-            TaskName,
-            ClientId, 
-            ProjectId,
-            EstimateValue,
-            AzureValue,
-            UserStoryNumber,
-            TaskNumber,
-            UserId,
-            CreatedBy,
-            CreatedDate,
-            IsActive
-          )
-        VALUES
-            (
-              @TaskName,
-              @ClientId,
-              @ProjectId,
-              @EstimateValue,
-              @AzureValue,
-              @UserStoryNumber,
-              @TaskNumber,
-              @UserId,
-              @UserId,
-              @TaskDate,
-              1
-            )
-        `
-      );
+    await addTimeEntryService(
+      taskName,
+      clientId,
+      projectId,
+      estimateValue,
+      azureValue,
+      userStoryNumber,
+      taskNumber,
+      userId,
+      taskDate
+    );
 
     // let taskTable = new sql.Table();
 
@@ -275,27 +225,12 @@ export const validateTimeEntry = async (req, res, next) => {
 
 export const dailyHoursLogged = async (req, res) => {
   try {
-    let pool = req.db;
     let { month, year } = req.query;
     let userId = req.user.id;
 
-    let result = await pool
-      .request()
-      .input("Month", sql.Int, month)
-      .input("Year", sql.Int, year)
-      .input("UserId", sql.Int, userId)
-      .query(
-        `SELECT FORMAT(CreatedDate, 'yyyy-MM-dd') AS date,
-        SUM(AzureValue) AS hoursLogged
-        FROM Tasks
-        WHERE MONTH(CreatedDate) = @Month
-        AND YEAR(CreatedDate) = @Year 
-        AND CreatedBy = @UserId
-        AND IsActive = 1
-        GROUP BY FORMAT(CreatedDate, 'yyyy-MM-dd'); `
-      );
+    let hours = await dailyHoursLoggedService(month, year, userId);
 
-    res.status(201).send(result.recordset);
+    res.status(201).send(hours);
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: error.message });
@@ -304,8 +239,6 @@ export const dailyHoursLogged = async (req, res) => {
 
 export const updateTimeEntry = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { id } = req.params;
     let {
       taskName,
@@ -322,35 +255,17 @@ export const updateTimeEntry = async (req, res) => {
     if (id == 0) {
       throw new Error("Invalid task id");
     }
-
-    await pool
-      .request()
-      .input("TaskId", sql.Int, id)
-      .input("TaskName", sql.VarChar, taskName)
-      .input("ClientId", sql.Int, clientId)
-      .input("ProjectId", sql.Int, projectId)
-      .input("EstimateValue", sql.Decimal(10, 2), estimateValue)
-      .input("AzureValue", sql.Decimal(10, 2), azureValue)
-      .input("UserStoryNumber", sql.Int, userStoryNumber)
-      .input("TaskNumber", sql.Int, taskNumber)
-      .input("UserId", sql.Int, userId)
-      .input("IsActive", sql.Bit, 1)
-      .query(
-        `UPDATE TASKS
-        SET
-          TaskName=@TaskName,
-          ClientId=@ClientId,
-          ProjectId=@ProjectId,
-          EstimateValue=@EstimateValue,
-          AzureValue=@AzureValue,
-          UserStoryNumber=@UserStoryNumber,
-          TaskNumber=@TaskNumber,
-          UserId=@UserId,
-          ModifiedBy=@UserId,
-          ModifiedDate=GETDATE()
-        WHERE
-          TaskId=@TaskId`
-      );
+    await updateTimeEntryService(
+      id,
+      taskName,
+      clientId,
+      projectId,
+      estimateValue,
+      azureValue,
+      userStoryNumber,
+      taskNumber,
+      userId
+    );
 
     res.status(201).send({ message: "Task updated successfully" });
   } catch (error) {

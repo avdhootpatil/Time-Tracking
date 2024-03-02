@@ -1,13 +1,13 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { connectToDatabase, pool } from "./controllers/dbController.js";
 import clientRouter from "./routes/client.js";
 import holidayRouter from "./routes/holiday.js";
 import projectRouter from "./routes/project.js";
 import reportsRouter from "./routes/reports.js";
 import timeSheetRouter from "./routes/timeSheet.js";
 import userRouter from "./routes/user.js";
+import { connectToDatabase, pool } from "./config/dbConfig.js";
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ app.use(cors({ origin: "*" }));
 //connect to database
 app.use(connectToDatabase(pool));
 
-//controllers
+//routes
 app.use("/client", clientRouter);
 app.use("/project", projectRouter);
 app.use("/timesheet", timeSheetRouter);

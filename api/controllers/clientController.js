@@ -1,27 +1,28 @@
 import camelcaseKeys from "camelcase-keys";
-import sql from "mssql";
 import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
 import { Pagination } from "../models/common.js";
 import { Client } from "../models/index.js";
 import { clientSchema } from "../schema/index.js";
+import {
+  addClientService,
+  deleteClientService,
+  getClientByIdService,
+  getClientListService,
+  getClientsService,
+  updateClientService,
+} from "../services/clientService.js";
 
 export const clientList = async (req, res) => {
   try {
-    let pool = req.db;
-
     // get page, pageSize from query object
     let { page, pageSize } = extractPageQuery(req.query);
 
-    let result = await pool
-      .request()
-      .input("PageSize", sql.Int, pageSize)
-      .input("PageNumber", sql.Int, page)
-      .execute("GetPaginatedClient");
+    let clientList = await getClientListService(page, pageSize);
 
-    let totalCount = getTotalCount(result.recordset[0]);
+    let totalCount = getTotalCount(clientList);
 
     let paginatedResult = new Pagination(
-      result.recordset,
+      clientList,
       totalCount,
       page,
       pageSize
@@ -41,26 +42,13 @@ export const clientList = async (req, res) => {
 
     res.status(200).send(paginatedResult);
   } catch (e) {
-    res.status(400).send({ error: e.messgae });
+    res.status(500).send({ error: e.messgae });
   }
 };
 
 export const getClients = async (req, res) => {
   try {
-    let pool = req.db;
-
-    let result = await pool.request().query(`
-      SELECT
-        ClientId as id,
-        ClientName as name ,
-        ClientDescription as description
-      FROM
-        CLIENTS
-      WHERE
-        IsActive=1 
-      `);
-
-    let clients = result.recordset;
+    let clients = await getClientsService();
 
     clients = camelcaseKeys(clients, { deep: true });
 
@@ -72,30 +60,10 @@ export const getClients = async (req, res) => {
 
 export const addClient = async (req, res) => {
   try {
-    let pool = req.db;
     let { name, description } = req.body;
     let { id } = req.user;
 
-    await pool
-      .request()
-      .input("ClientName", sql.VarChar, name)
-      .input("description", sql.VarChar, description)
-      .input("CreatedBy", sql.Int, id)
-      .query(
-        `INSERT INTO CLIENTS
-          (ClientName,
-            ClientDescription,
-            IsActive,
-            CreatedDate,
-            CreatedBy)
-          VALUES
-            (@ClientName,
-            @description,
-            1,
-            GETDATE(),
-            @CreatedBy)`
-      );
-
+    await addClientService(name, description, id);
     res.status(201).send({ message: "Client added successfully" });
   } catch (error) {
     console.error(error);
@@ -105,8 +73,6 @@ export const addClient = async (req, res) => {
 
 export const updateClient = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { id } = req.params;
     let { name, description } = req.body;
     let userId = req.user.id;
@@ -115,21 +81,7 @@ export const updateClient = async (req, res) => {
       throw new Error("Invalid client id");
     }
 
-    await pool
-      .request()
-      .input("ClientName", sql.VarChar, name)
-      .input("description", sql.VarChar, description)
-      .input("ModifiedBy", sql.Int, userId)
-      .input("ClientId", sql.Int, id)
-      .query(
-        `UPDATE CLIENTS SET 
-          ClientName=@ClientName, 
-          ClientDescription=@description,
-          ModifiedOn=GETDATE(),
-          ModifiedBy=@ModifiedBy
-        WHERE 
-          ClientId=@ClientId`
-      );
+    await updateClientService(name, description, userId, id);
 
     res.status(201).send({ message: "Client updated successfully" });
   } catch (error) {
@@ -140,7 +92,6 @@ export const updateClient = async (req, res) => {
 
 export const deleteClient = async (req, res) => {
   try {
-    let pool = req.db;
     let { id } = req.params;
     let userId = req.user.id;
 
@@ -148,18 +99,7 @@ export const deleteClient = async (req, res) => {
       throw new Error("Invalid client id");
     }
 
-    await pool
-      .request()
-      .input("ModifiedBy", sql.Int, userId)
-      .input("ClientId", sql.Int, id)
-      .query(
-        `UPDATE CLIENTS SET 
-          IsActive=0,
-          ModifiedOn=GETDATE(),
-          ModifiedBy=@ModifiedBy
-        WHERE 
-         ClientId=@ClientId`
-      );
+    await deleteClientService(userId, id);
 
     res.status(201).send({ message: "Client deleted successfully" });
   } catch (error) {
@@ -170,16 +110,9 @@ export const deleteClient = async (req, res) => {
 
 export const getClientById = async (req, res) => {
   try {
-    let pool = req.db;
     let { id } = req.params;
 
-    let result = await pool.request().query(
-      `SELECT ClientId, ClientName, ClientDescription FROM Clients 
-        WHERE 
-          IsActive=1 
-        AND 
-         ClientId=${id}`
-    );
+    let result = await getClientByIdService(id);
 
     let { ClientId, ClientName, ClientDescription } = result.recordset[0];
 

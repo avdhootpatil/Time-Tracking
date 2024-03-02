@@ -1,18 +1,20 @@
 import camelcaseKeys from "camelcase-keys";
 import excelJS from "exceljs";
 import fs from "fs";
-import sql from "mssql";
 import {
   formatBillingSheet,
   getBillingSheetByEmployeeName,
   getWorkingDays,
 } from "../helperFunctions.js";
 import { BillingSheet } from "../models/index.js";
+import { getProjectsService } from "../services/projectService.js";
+import {
+  getBillingSheetService,
+  getTimsheetService,
+} from "../services/reportsService.js";
 
 export const getTimsheet = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { startDate, endDate } = req.query;
 
     if (startDate === "" || startDate === "null") {
@@ -26,14 +28,7 @@ export const getTimsheet = async (req, res) => {
     let { user } = req;
     let userId = user.id;
 
-    let result = await pool
-      .request()
-      .input("StartDate", sql.DateTime, startDate)
-      .input("EndDate", sql.DateTime, endDate)
-      .input("UserId", sql.Int, userId)
-      .execute("GetTimeSheet");
-
-    let timeSheet = result.recordset;
+    let timeSheet = await getTimsheetService(startDate, endDate, userId);
 
     timeSheet = camelcaseKeys(timeSheet);
 
@@ -45,8 +40,6 @@ export const getTimsheet = async (req, res) => {
 
 export const exportTimesheet = async (req, res) => {
   try {
-    let pool = req.db;
-
     let { startDate, endDate } = req.query;
 
     if (startDate === "" || startDate === "null") {
@@ -60,14 +53,7 @@ export const exportTimesheet = async (req, res) => {
     let { user } = req;
     let userId = user.id;
 
-    let result = await pool
-      .request()
-      .input("StartDate", sql.DateTime, startDate)
-      .input("EndDate", sql.DateTime, endDate)
-      .input("UserId", sql.Int, userId)
-      .execute("GetTimeSheet");
-
-    let timeSheet = result.recordset;
+    let timeSheet = await getTimsheetService(startDate, endDate, userId);
 
     timeSheet = camelcaseKeys(timeSheet);
 
@@ -122,7 +108,6 @@ export const exportTimesheet = async (req, res) => {
 
 export const getBillingSheet = async (req, res) => {
   try {
-    const pool = req.db;
     let { startDate, endDate } = req.query;
 
     if (startDate === "" || startDate === "null") {
@@ -136,14 +121,11 @@ export const getBillingSheet = async (req, res) => {
     let { user } = req;
     let userId = user.id;
 
-    let result = await pool
-      .request()
-      .input("StartDate", sql.DateTime, startDate)
-      .input("EndDate", sql.DateTime, endDate)
-      .input("UserId", sql.Int, userId)
-      .execute("GetBillingSheet");
-
-    let employeesTaskTime = result.recordset;
+    let employeesTaskTime = await getBillingSheetService(
+      startDate,
+      endDate,
+      userId
+    );
 
     employeesTaskTime = camelcaseKeys(employeesTaskTime);
 
@@ -161,7 +143,6 @@ export const getBillingSheet = async (req, res) => {
 
 export const exportBillingSheet = async (req, res) => {
   try {
-    const pool = req.db;
     const { startDate, endDate } = req.query;
 
     if (startDate === "" || startDate === "null") {
@@ -175,14 +156,11 @@ export const exportBillingSheet = async (req, res) => {
     let { user } = req;
     let userId = user.id;
 
-    let result = await pool
-      .request()
-      .input("StartDate", sql.DateTime, startDate)
-      .input("EndDate", sql.DateTime, endDate)
-      .input("UserId", sql.Int, userId)
-      .execute("GetBillingSheet");
-
-    let employeesTaskTime = result.recordset;
+    let employeesTaskTime = await getBillingSheetService(
+      startDate,
+      endDate,
+      userId
+    );
 
     employeesTaskTime = camelcaseKeys(employeesTaskTime);
 
@@ -192,7 +170,7 @@ export const exportBillingSheet = async (req, res) => {
 
     let billingSheet = new BillingSheet(workingDays, totalHours, employeesTime);
 
-    let pResult = await pool.request().execute("GetProjects");
+    let pResult = await getProjectsService();
 
     let projects = pResult.recordset;
 
@@ -222,6 +200,7 @@ export const exportBillingSheet = async (req, res) => {
       { header: "Available Hours", key: "totalHours", width: 10 },
       ...projectColumns,
       { header: "Total Azure Hours", key: "hours", width: 10 },
+      { header: "Idle Time", key: "idleTime", width: 10 },
       { header: "Utilizations", key: "utilization", width: 10 },
     ];
 
@@ -240,7 +219,13 @@ export const exportBillingSheet = async (req, res) => {
         totalProjectHours = totalProjectHours + project.time;
       });
 
+      let idleTime =
+        employee.totalHours - totalProjectHours > 0
+          ? employee.totalHours - totalProjectHours
+          : 0;
+
       newEmployee["hours"] = totalProjectHours;
+      newEmployee["idleTime"] = idleTime;
       newEmployee["utilization"] =
         (totalProjectHours / employee.totalHours) * 100;
       newBillingSheet.push(newEmployee);

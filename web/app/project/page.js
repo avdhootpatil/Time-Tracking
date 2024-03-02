@@ -57,7 +57,7 @@ function ProjectPage() {
 
       let response = await deleteProject(project?.id || 0, user.token);
       if (response.status === "success") {
-        toast.success("Client deleted successfully.");
+        toast.success("Project deleted successfully.");
         await getPaginatedProjects(page, PAGE_SIZE, user.token);
       } else {
         toast.error("Unable to delete Daily Calculation");
