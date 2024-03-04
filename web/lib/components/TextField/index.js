@@ -1,5 +1,4 @@
 import { Textarea } from "@mui/joy";
-import PropTypes from "prop-types";
 
 export default function TextField({
   label = "",
@@ -8,7 +7,6 @@ export default function TextField({
   isError = false,
   placeholder = "",
   error = "",
-  type = "text",
   note = "",
 }) {
   return (
@@ -26,7 +24,6 @@ export default function TextField({
           onChange={onChange}
           error={isError}
           placeholder={placeholder}
-          type={type}
           size="sm"
         />
       </div>
@@ -34,13 +31,3 @@ export default function TextField({
     </>
   );
 }
-
-TextField.defaulProps = {
-  label: "",
-  note: "",
-};
-
-TextField.propTypes = {
-  label: PropTypes.string,
-  note: PropTypes.string,
-};

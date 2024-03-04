@@ -19,6 +19,8 @@ export const getHolidays = async (req, res) => {
 
     let holidays = await getHolidaysService(year);
 
+    holidays = camelcaseKeys(holidays);
+
     res.status(200).send(holidays);
   } catch (e) {
     res.status(500).send({ error: e.message });
