@@ -60,7 +60,7 @@ function ProjectPage() {
         toast.success("Project deleted successfully.");
         await getPaginatedProjects(page, PAGE_SIZE, user.token);
       } else {
-        toast.error("Unable to delete Daily Calculation");
+        toast.error("Unable to delete Project");
       }
       setIsDeleteModalOpen(false);
     } else {

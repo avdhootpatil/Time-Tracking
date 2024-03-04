@@ -29,4 +29,10 @@ export const routes = [
     name: "Reports",
     children: [],
   },
+  {
+    id: 4,
+    path: "/holidays",
+    name: "Holidays",
+    children: [],
+  },
 ];

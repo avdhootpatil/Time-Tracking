@@ -5,14 +5,7 @@ import { getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { register } from "@/lib/services/user";
 import { userRegistrationSchema } from "@/lib/validation";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
-import {
-  Box,
-  Button,
-  FormControl,
-  FormHelperText,
-  OutlinedInput,
-  Typography,
-} from "@mui/material";
+import OutlinedInput from "@/lib/components/OulinedInput";
 import { produce } from "immer";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -96,79 +89,156 @@ function RegistrationPage() {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "80vh",
-      }}
-    >
-      <Box
-        component="form"
-        sx={{
-          padding: "60px",
-          display: "flex",
-          flexDirection: "column",
-          width: "500px",
-          borderRadius: "20px",
-          backgroundColor: tTheme.palette.white,
-        }}
-      >
-        <Typography sx={{ marginBottom: "20px" }} variant="h4">
-          Register
-        </Typography>
+    // (
+    //   <Box
+    //     sx={{
+    //       display: "flex",
+    //       justifyContent: "center",
+    //       alignItems: "center",
+    //       height: "80vh",
+    //     }}
+    //   >
+    //     <Box
+    //       component="form"
+    //       sx={{
+    //         padding: "60px",
+    //         display: "flex",
+    //         flexDirection: "column",
+    //         width: "500px",
+    //         borderRadius: "20px",
+    //         backgroundColor: tTheme.palette.white,
+    //       }}
+    //     >
+    //       <Typography sx={{ marginBottom: "20px" }} variant="h4">
+    //         Register
+    //       </Typography>
 
-        <FormControl sx={{ marginBottom: "10px" }}>
-          <OutlinedInput
-            size="small"
-            placeholder="User Name"
-            value={user?.userName}
-            onChange={handleChange("userName")}
-            error={errors && errors?.userName?.length}
-          />
-          <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
-            {errors && errors.userName}
-          </FormHelperText>
-        </FormControl>
-        <FormControl sx={{ marginBottom: "10px" }}>
-          <OutlinedInput
-            size="small"
-            placeholder="Email"
-            value={user?.userEmail}
-            onChange={handleChange("userEmail")}
-            error={errors && errors?.userEmail?.length}
-          />
-          <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
-            {errors && errors.userEmail}
-          </FormHelperText>
-        </FormControl>
-        <FormControl sx={{ marginBottom: "10px" }}>
-          <OutlinedInput
-            size="small"
-            placeholder="Password"
-            value={user?.password}
-            onChange={handleChange("password")}
-            error={errors && errors?.password?.length}
-            type="password"
-          />
-          <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
-            {errors && errors.password}
-          </FormHelperText>
-        </FormControl>
-        <FormControl>
-          <Button
-            variant="outlined"
-            sx={{ marginTop: "10px", width: "200px" }}
-            size="small"
-            startIcon={<AppRegistrationIcon />}
-            onClick={handleSubmit}
-          >
+    //       <FormControl sx={{ marginBottom: "10px" }}>
+    //         <OutlinedInput
+    //           size="small"
+    //           placeholder="User Name"
+    //           value={user?.userName}
+    //           onChange={handleChange("userName")}
+    //           error={errors && errors?.userName?.length}
+    //         />
+    //         <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
+    //           {errors && errors.userName}
+    //         </FormHelperText>
+    //       </FormControl>
+    //       <FormControl sx={{ marginBottom: "10px" }}>
+    //         <OutlinedInput
+    //           size="small"
+    //           placeholder="Email"
+    //           value={user?.userEmail}
+    //           onChange={handleChange("userEmail")}
+    //           error={errors && errors?.userEmail?.length}
+    //         />
+    //         <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
+    //           {errors && errors.userEmail}
+    //         </FormHelperText>
+    //       </FormControl>
+    //       <FormControl sx={{ marginBottom: "10px" }}>
+    //         <OutlinedInput
+    //           size="small"
+    //           placeholder="Password"
+    //           value={user?.password}
+    //           onChange={handleChange("password")}
+    //           error={errors && errors?.password?.length}
+    //           type="password"
+    //         />
+    //         <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
+    //           {errors && errors.password}
+    //         </FormHelperText>
+    //       </FormControl>
+    //       <FormControl>
+    //         <Button
+    //           variant="outlined"
+    //           sx={{ marginTop: "10px", width: "200px" }}
+    //           size="small"
+    //           startIcon={<AppRegistrationIcon />}
+    //           onClick={handleSubmit}
+    //         >
+    //           Register
+    //         </Button>
+    //       </FormControl>
+    //     </Box>
+    //   </Box>
+    // );
+    <>
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Register
-          </Button>
-        </FormControl>
-      </Box>
-    </Box>
+          </h2>
+        </div>
+
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Username
+              </label>
+              <div className="mt-2">
+                <OutlinedInput
+                  onChange={handleChange("userName")}
+                  value={user?.userName}
+                  isError={errors && errors?.userName?.length}
+                  error={errors && errors?.userName}
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Email address
+              </label>
+              <div className="mt-2">
+                <OutlinedInput
+                  onChange={handleChange("userEmail")}
+                  value={user?.userEmail}
+                  isError={errors && errors?.userEmail?.length}
+                  error={errors && errors?.userEmail}
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Password
+                </label>
+              </div>
+              <div className="mt-2">
+                <OutlinedInput
+                  onChange={handleChange("password")}
+                  value={user?.password}
+                  isError={errors && errors?.password?.length}
+                  error={errors && errors?.password}
+                  type="password"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Sign in
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
 

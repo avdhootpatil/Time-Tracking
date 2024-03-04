@@ -13,7 +13,7 @@ const holidayRouter = express.Router();
 
 holidayRouter.get("/getholidays", auth, getHolidays);
 
-holidayRouter.get("/getsingleholiday/:id", auth, getSingleHoliday);
+holidayRouter.get("/getholidaybyid/:id", auth, getSingleHoliday);
 
 holidayRouter.post("/addholiday", auth, validateHolidayDetails, saveHoliday);
 
