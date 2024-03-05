@@ -19,7 +19,7 @@ export const getHolidays = async (year) => {
 export const getSingleHoliday = async (id) => {
   try {
     let result = await pool.request().input("ID", sql.Int, id).query(`
-    SELECT HoliDayId, Description, Date FROM Holidays
+    SELECT HolidayId, Description, Date FROM Holidays
     WHERE
         IsActive=1
     AND

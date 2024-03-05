@@ -13,7 +13,6 @@ function HolidaysTable({
   onDelete = () => {},
   isLoading = false,
 }) {
-  console.log("holidays", holidays);
   return (
     <div className="border border-solid border-grey-500">
       <Table borderAxis="both" size="md">

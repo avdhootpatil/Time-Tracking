@@ -1,8 +1,8 @@
 import { Result, handleApiError, httpClient } from "@/utils";
 
 const deleteholiday = async (id, token) => {
-  const response = await httpClient.post(
-    `/holiday/deleteholiday/${id}`,
+  const response = await httpClient.put(
+    `/holidays/deleteholiday/${id}`,
     undefined,
     {
       headers: {

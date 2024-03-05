@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import * as yup from "yup";
 import OutlinedInput from "../OulinedInput";
-import Select from "@/lib/components/select";
+import Select from "@/lib/components/Select";
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useRef } from "react";

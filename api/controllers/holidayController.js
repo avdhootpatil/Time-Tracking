@@ -32,7 +32,6 @@ export const getSingleHoliday = async (req, res) => {
     let { id } = req.params;
 
     let holiday = await getSingleHolidayService(id);
-
     let response = camelcaseKeys(holiday);
 
     res.status(200).send(response);

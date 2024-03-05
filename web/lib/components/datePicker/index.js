@@ -1,23 +1,23 @@
 import * as React from "react";
 
-import {
-  useTheme as useMaterialTheme,
-  useColorScheme as useMaterialColorScheme,
-  Experimental_CssVarsProvider as MaterialCssVarsProvider,
-} from "@mui/material/styles";
-import {
-  extendTheme as extendJoyTheme,
-  useColorScheme,
-  CssVarsProvider,
-  THEME_ID,
-} from "@mui/joy/styles";
-import Input from "@mui/joy/Input";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Input from "@mui/joy/Input";
+import {
+  CssVarsProvider,
+  THEME_ID,
+  extendTheme as extendJoyTheme,
+  useColorScheme,
+} from "@mui/joy/styles";
+import {
+  Experimental_CssVarsProvider as MaterialCssVarsProvider,
+  useColorScheme as useMaterialColorScheme,
+  useTheme as useMaterialTheme,
+} from "@mui/material/styles";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { unstable_useDateField as useDateField } from "@mui/x-date-pickers/DateField";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 import { useClearableField } from "@mui/x-date-pickers/hooks";
 
@@ -64,6 +64,7 @@ const JoyField = React.forwardRef((props, ref) => {
           root: { ...slotProps?.root, ref: containerRef },
         }}
         {...other}
+        size="sm"
       />
     </FormControl>
   );
@@ -145,7 +146,13 @@ function SyncThemeMode({ mode }) {
   return null;
 }
 
-export default function PickerWithJoyField({ value, onChange, minDate }) {
+export default function PickerWithJoyField({
+  value = null,
+  onChange = () => {},
+  minDate = null,
+  maxDate = null,
+  isError = false,
+}) {
   const materialTheme = useMaterialTheme();
   return (
     <MaterialCssVarsProvider>
@@ -157,6 +164,8 @@ export default function PickerWithJoyField({ value, onChange, minDate }) {
             value={value}
             onChange={onChange}
             minDate={minDate}
+            maxDate={maxDate}
+            error={isError}
           />
         </LocalizationProvider>
       </CssVarsProvider>

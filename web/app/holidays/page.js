@@ -5,9 +5,8 @@ import DeleteConfirmDialog from "@/lib/components/deleteConfirmDialog";
 import { HolidayModal } from "@/lib/components/modal";
 import HolidaysTable from "@/lib/components/table/HolidaysTable";
 import YearSelect from "@/lib/components/yearSelect";
-import { getUserFromLocalStorage } from "@/lib/helperFunctions";
-import { getHolidays } from "@/lib/services/holidays";
-import { deleteProject } from "@/lib/services/project";
+import { getUserFromLocalStorage, getYears } from "@/lib/helperFunctions";
+import { deleteHoliday, getHolidays } from "@/lib/services/holidays";
 import { Button } from "@mui/joy";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -18,27 +17,37 @@ function HolidaysPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [holidayId, setHolidayId] = useState(0);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(null);
+
   const user = getUserFromLocalStorage();
   const years = getYears();
+
   useEffect(() => {
     (async () => {
-      if (selectedYear !== null) {
-        let response = await getHolidays(selectedYear, user.token);
-        console.log(response);
-        if (response.status === "success") {
-          setHolidays(response.data);
-        }
+      let currentYear = years[years.length - 1];
+
+      setSelectedYear(currentYear);
+
+      if (currentYear !== null) {
+        await getCurrentYearHolidays(currentYear.year, user.token);
       }
     })();
   }, []);
 
-  const handleSearch = async () => {
-    let response = await getHolidays(selectedYear, user.token);
+  const getCurrentYearHolidays = async (year, token) => {
+    let response = await getHolidays(year, token);
+
     if (response.status === "success") {
       setHolidays(response.data);
+    } else {
+      toast.error("Unable to get holidays");
     }
   };
+
+  const handleSearch = async () => {
+    await getCurrentYearHolidays(selectedYear.year, user.token);
+  };
+
   const handleAdd = () => {
     setHolidayId(0);
     setIsModalOpen(true);
@@ -53,11 +62,10 @@ function HolidaysPage() {
   const handleDelete = (index) => async (event) => {
     if (isDeleteModalOpen) {
       let holiday = holidays[index];
-
-      let response = await deleteProject(holiday?.holidayId || 0, user.token);
+      let response = await deleteHoliday(holiday?.holidayId || 0, user.token);
       if (response.status === "success") {
         toast.success("Holiday deleted successfully.");
-        await getHolidays(selectedYear, user.token);
+        await getCurrentYearHolidays(selectedYear.year, user.token);
       } else {
         toast.error("Unable to delete Holiday");
       }
@@ -70,24 +78,16 @@ function HolidaysPage() {
 
   const handleCloseModal = async (isSaved) => {
     if (isSaved) {
-      await getHolidays(selectedYear, user.token);
+      await getCurrentYearHolidays(selectedYear.year, user.token);
     }
 
     setIsModalOpen(false);
     setHolidayId(0);
   };
+
   const handleYearChange = (year) => {
     setSelectedYear(year);
   };
-
-  function getYears() {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let i = currentYear - 20; i <= currentYear; i++) {
-      years.push(i);
-    }
-    return years;
-  }
 
   return (
     <div>
@@ -97,12 +97,7 @@ function HolidaysPage() {
           value={selectedYear}
           onChange={handleYearChange}
         />
-        <Button
-          variant="soft"
-          onClick={handleSearch}
-          size="sm"
-          sx={{ height: "2.5rem" }}
-        >
+        <Button variant="soft" onClick={handleSearch} size="sm">
           Go
         </Button>
       </div>

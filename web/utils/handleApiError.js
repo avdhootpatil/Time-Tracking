@@ -20,7 +20,7 @@ export default function handleApiError(e) {
         return Result.conflict([e.errors.message]);
       case 500:
         // Internal_Server_Error
-        return Result.internalServerError([e.statusText]);
+        return Result.internalServerError([e.errors.error]);
       default:
         return Result.error([e.message]);
     }

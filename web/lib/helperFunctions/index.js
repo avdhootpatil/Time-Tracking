@@ -75,21 +75,21 @@ export const getTaskPostPayload = (date, task) => {
  * @returns
  */
 export const hoursChipType = (hours) => {
-  let className = `inline-flex items-center rounded-md bg-blue-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
+  let color = `blue`;
 
   if (hours == 8) {
-    className = `inline-flex items-center rounded-md bg-green-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
+    color = `green`;
   }
 
   if (hours < 8) {
-    className = `inline-flex items-center rounded-md bg-yellow-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
+    color = `yellow`;
   }
 
   if (hours < 5) {
-    className = `inline-flex items-center rounded-md bg-red-250 px-2 py-1 my-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10`;
+    color = `red`;
   }
 
-  return className;
+  return color;
 };
 
 /**
@@ -162,4 +162,19 @@ export const getTotalAzureHours = (projects) => {
     totalHours = totalHours + project.time;
   });
   return totalHours;
+};
+
+export const getYears = () => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  let counter = 1;
+  for (let i = currentYear - 20; i <= currentYear; i++) {
+    let year = {
+      id: counter,
+      year: i,
+    };
+    years.push(year);
+    counter++;
+  }
+  return years;
 };

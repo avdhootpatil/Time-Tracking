@@ -1,4 +1,3 @@
-import { hoursChipType } from "@/lib/helperFunctions";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import HoursLogged from "../hoursLogged";
@@ -35,7 +34,7 @@ const CalendarDates = ({
                 key={crypto.randomUUID()}
                 className={`${
                   day.date === currentDate
-                    ? `calender-cell bg-gray-100 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
+                    ? `calender-cell bg-orange-100 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
                     : `calender-cell border-solid border border-grey-500 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
                 }`}
                 id={day.date}

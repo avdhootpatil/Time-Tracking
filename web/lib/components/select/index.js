@@ -1,9 +1,8 @@
 "use client";
 
+import ClearIcon from "@mui/icons-material/Clear";
 import { Autocomplete } from "@mui/joy";
 import { useEffect, useState } from "react";
-import TextField from "../TextField";
-import ClearIcon from "@mui/icons-material/Clear";
 
 function Select({
   value = null,
@@ -30,6 +29,7 @@ function Select({
     (async () => {
       let currentValue = null;
       let selectOptions = [];
+
       if (callback !== null) {
         let response = await callback(params);
         if (response.status === "success") {
@@ -44,9 +44,11 @@ function Select({
           (option) => option[valueProperty] === value[valueProperty]
         );
       }
+
       if (currentValue) {
         setSelectedValue(currentValue);
       }
+
       setData(selectOptions);
     })();
   }, [value]);
@@ -68,26 +70,23 @@ function Select({
       <div className="mt-2">
         <Autocomplete
           error={isError}
-          clearIcon={isClearable ? <ClearIcon fontSize="small" /> : null}
+          clearIcon={<ClearIcon fontSize="small" />}
           value={selectedValue}
           onChange={handleChange}
           onInputChange={(event, newInputValue) => {
             setInputValue(newInputValue);
           }}
           inputValue={inputValue}
-          isOptionEqualToValue={(option, value) => option.name === value.name}
+          isOptionEqualToValue={(option, value) =>
+            option[nameProperty] === value[nameProperty]
+          }
           disabled={disabled}
-          getOptionLabel={(option) => option?.[nameProperty] || ""}
+          getOptionLabel={(option) => option?.[nameProperty]?.toString() || ""}
           options={data}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              size="small"
-              placeholder={placeholder}
-              sx={{ margin: "0px !important", ...sx }}
-            />
-          )}
           multiple={isMulti}
+          disableClearable={!isClearable}
+          size="sm"
+          placeholder={placeholder}
         />
       </div>
     </div>
