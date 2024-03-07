@@ -67,7 +67,11 @@ const HolidayModal = ({
     let nextState = produce(holiday, (draft) => {
       switch (name) {
         case "date":
-          draft[name] = event?.toISOString();
+          let d = new Date(event);
+          var newd = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+          let date = newd?.toISOString();
+
+          draft[name] = date;
           break;
 
         case "description":
@@ -167,7 +171,9 @@ const HolidayModal = ({
                           sx={{ width: "100%" }}
                           onChange={handleChange("date")}
                           value={holiday?.date ? dayjs(holiday?.date) : null}
-                          isError={errors.name && errors.name.length}
+                          isError={
+                            errors.date && errors.date.length ? true : false
+                          }
                           placeholder="Project Name"
                           minDate={null}
                           maxDate={null}

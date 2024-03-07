@@ -127,13 +127,13 @@ export const dailyHoursLogged = async (month, year, userId) => {
       .input("UserId", sql.Int, userId)
       .query(
         `SELECT FORMAT(CreatedDate, 'yyyy-MM-dd') AS date,
-      SUM(AzureValue) AS hoursLogged
-      FROM Tasks
-      WHERE MONTH(CreatedDate) = @Month
-      AND YEAR(CreatedDate) = @Year 
-      AND CreatedBy = @UserId
-      AND IsActive = 1
-      GROUP BY FORMAT(CreatedDate, 'yyyy-MM-dd'); `
+          SUM(AzureValue) AS hoursLogged
+          FROM Tasks
+          WHERE MONTH(CreatedDate) = @Month
+          AND YEAR(CreatedDate) = @Year 
+          AND CreatedBy = @UserId
+          AND IsActive = 1
+          GROUP BY FORMAT(CreatedDate, 'yyyy-MM-dd');`
       );
 
     return result.recordset;
