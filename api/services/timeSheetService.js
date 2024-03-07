@@ -1,3 +1,4 @@
+import camelcaseKeys from "camelcase-keys";
 import {
   addTimeEntry,
   dailyHoursLogged,
@@ -6,6 +7,10 @@ import {
   gettasksbydate,
   updateTimeEntry,
 } from "../data/repositories/timeSheetRepository.js";
+import Client from "../models/client.js";
+import Project from "../models/project.js";
+import TaskByUserIdDTO from "../models/taskByUserIdDTO.js";
+import User from "../models/user.js";
 
 export const getTimeSheetDetailsyUserIdService = async (
   startDate,
@@ -13,7 +18,12 @@ export const getTimeSheetDetailsyUserIdService = async (
   userId
 ) => {
   try {
-    return await getTimeSheetDetailsyUserId(startDate, endDate, userId);
+    let tasks = await getTimeSheetDetailsyUserId(startDate, endDate, userId);
+
+    tasks = tasksByDate(timeSheetDetails);
+
+    tasks = new TaskByUserIdDTO(startDate, endDate, timeEntries);
+    return tasks;
   } catch (error) {
     console.error(error);
     throw error;
@@ -22,7 +32,30 @@ export const getTimeSheetDetailsyUserIdService = async (
 
 export const gettasksbydateService = async (userId, taskDate) => {
   try {
-    return await gettasksbydate(userId, taskDate);
+    taskDate = taskDate.split("T")[0];
+    let tasks = await gettasksbydate(userId, taskDate);
+    tasks.forEach((task) => {
+      //client
+      let client = new Client(task.ClientId, task.ClientName);
+      task["client"] = client;
+      delete task.ClientId;
+      delete task.ClientName;
+
+      //project
+      let project = new Project(task.ProjectId, task.ProjectName);
+      task["project"] = project;
+      delete task.ProjectId;
+      delete task.ProjectName;
+
+      //user
+      let user = new User(task.UserId, task.UserName);
+      task["user"] = user;
+      delete task.UserId;
+      delete task.UserName;
+    });
+
+    tasks = camelcaseKeys(tasks, { deep: true });
+    return tasks;
   } catch (error) {
     console.error(error);
     throw error;
@@ -31,7 +64,12 @@ export const gettasksbydateService = async (userId, taskDate) => {
 
 export const deleteTimeEntryService = async (taskId, userId) => {
   try {
-    return await deleteTimeEntry(taskId, userId);
+    if (taskId == 0) {
+      throw new Error("Invalid task id");
+    }
+
+    await deleteTimeEntry(taskId, userId);
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -50,7 +88,7 @@ export const addTimeEntryService = async (
   taskDate
 ) => {
   try {
-    return await addTimeEntry(
+    await addTimeEntry(
       taskName,
       clientId,
       projectId,
@@ -61,6 +99,8 @@ export const addTimeEntryService = async (
       userId,
       taskDate
     );
+
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -69,7 +109,8 @@ export const addTimeEntryService = async (
 
 export const dailyHoursLoggedService = async (month, year, userId) => {
   try {
-    return await dailyHoursLogged(month, year, userId);
+    let hours = await dailyHoursLogged(month, year, userId);
+    return hours;
   } catch (error) {
     console.error(error);
     throw error;
@@ -88,7 +129,11 @@ export const updateTimeEntryService = async (
   userId
 ) => {
   try {
-    return updateTimeEntry(
+    if (taskId == 0) {
+      throw new Error("Invalid task id");
+    }
+
+    await updateTimeEntry(
       taskId,
       taskName,
       clientId,
@@ -99,6 +144,7 @@ export const updateTimeEntryService = async (
       taskNumber,
       userId
     );
+    return;
   } catch (error) {
     console.error(error);
     throw error;

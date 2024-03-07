@@ -1,6 +1,4 @@
-import camelcaseKeys from "camelcase-keys";
-import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
-import { Pagination } from "../models/common.js";
+import { extractPageQuery } from "../helperFunctions.js";
 import { Client } from "../models/index.js";
 import { clientSchema } from "../schema/index.js";
 import {
@@ -19,28 +17,7 @@ export const clientList = async (req, res) => {
 
     let clientList = await getClientListService(page, pageSize);
 
-    let totalCount = getTotalCount(clientList);
-
-    let paginatedResult = new Pagination(
-      clientList,
-      totalCount,
-      page,
-      pageSize
-    );
-
-    //format result
-    let newItems = [];
-    paginatedResult.items.forEach((client) => {
-      let { ClientId, ClientName, ClientDescription } = client;
-      let newClient = new Client(ClientId, ClientName, ClientDescription);
-      newItems.push(newClient);
-    });
-
-    paginatedResult["items"] = newItems;
-
-    paginatedResult = camelcaseKeys(paginatedResult, { deep: true });
-
-    res.status(200).send(paginatedResult);
+    res.status(200).send(clientList);
   } catch (e) {
     res.status(500).send({ error: e.messgae });
   }
@@ -49,8 +26,6 @@ export const clientList = async (req, res) => {
 export const getClients = async (req, res) => {
   try {
     let clients = await getClientsService();
-
-    clients = camelcaseKeys(clients, { deep: true });
 
     res.status(200).send(clients);
   } catch (e) {
@@ -77,10 +52,6 @@ export const updateClient = async (req, res) => {
     let { name, description } = req.body;
     let userId = req.user.id;
 
-    if (id == 0) {
-      throw new Error("Invalid client id");
-    }
-
     await updateClientService(name, description, userId, id);
 
     res.status(201).send({ message: "Client updated successfully" });
@@ -95,10 +66,6 @@ export const deleteClient = async (req, res) => {
     let { id } = req.params;
     let userId = req.user.id;
 
-    if (id == 0) {
-      throw new Error("Invalid client id");
-    }
-
     await deleteClientService(userId, id);
 
     res.status(201).send({ message: "Client deleted successfully" });
@@ -112,11 +79,7 @@ export const getClientById = async (req, res) => {
   try {
     let { id } = req.params;
 
-    let result = await getClientByIdService(id);
-
-    let { ClientId, ClientName, ClientDescription } = result.recordset[0];
-
-    let client = new Client(ClientId, ClientName, ClientDescription);
+    let client = await getClientByIdService(id);
 
     res.status(200).send(client);
   } catch (e) {

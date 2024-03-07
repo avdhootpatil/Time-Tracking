@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import * as yup from "yup";
+import { Button } from "@mui/joy";
 
 function RegistrationPage() {
   const [user, setUser] = useState({
@@ -90,81 +91,6 @@ function RegistrationPage() {
   };
 
   return (
-    // (
-    //   <Box
-    //     sx={{
-    //       display: "flex",
-    //       justifyContent: "center",
-    //       alignItems: "center",
-    //       height: "80vh",
-    //     }}
-    //   >
-    //     <Box
-    //       component="form"
-    //       sx={{
-    //         padding: "60px",
-    //         display: "flex",
-    //         flexDirection: "column",
-    //         width: "500px",
-    //         borderRadius: "20px",
-    //         backgroundColor: tTheme.palette.white,
-    //       }}
-    //     >
-    //       <Typography sx={{ marginBottom: "20px" }} variant="h4">
-    //         Register
-    //       </Typography>
-
-    //       <FormControl sx={{ marginBottom: "10px" }}>
-    //         <OutlinedInput
-    //           size="small"
-    //           placeholder="User Name"
-    //           value={user?.userName}
-    //           onChange={handleChange("userName")}
-    //           error={errors && errors?.userName?.length}
-    //         />
-    //         <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
-    //           {errors && errors.userName}
-    //         </FormHelperText>
-    //       </FormControl>
-    //       <FormControl sx={{ marginBottom: "10px" }}>
-    //         <OutlinedInput
-    //           size="small"
-    //           placeholder="Email"
-    //           value={user?.userEmail}
-    //           onChange={handleChange("userEmail")}
-    //           error={errors && errors?.userEmail?.length}
-    //         />
-    //         <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
-    //           {errors && errors.userEmail}
-    //         </FormHelperText>
-    //       </FormControl>
-    //       <FormControl sx={{ marginBottom: "10px" }}>
-    //         <OutlinedInput
-    //           size="small"
-    //           placeholder="Password"
-    //           value={user?.password}
-    //           onChange={handleChange("password")}
-    //           error={errors && errors?.password?.length}
-    //           type="password"
-    //         />
-    //         <FormHelperText sx={{ color: "red", marginLeft: "0px" }}>
-    //           {errors && errors.password}
-    //         </FormHelperText>
-    //       </FormControl>
-    //       <FormControl>
-    //         <Button
-    //           variant="outlined"
-    //           sx={{ marginTop: "10px", width: "200px" }}
-    //           size="small"
-    //           startIcon={<AppRegistrationIcon />}
-    //           onClick={handleSubmit}
-    //         >
-    //           Register
-    //         </Button>
-    //       </FormControl>
-    //     </Box>
-    //   </Box>
-    // );
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -229,6 +155,17 @@ function RegistrationPage() {
             </div>
 
             <div>
+              <div className="text-sm my-2">
+                <Button
+                  className="font-semibold text-indigo-600 hover:text-indigo-500"
+                  variant="plain"
+                  onClick={() => {
+                    ROUTER.push("login");
+                  }}
+                >
+                  Sign In?
+                </Button>
+              </div>
               <button
                 onClick={handleSubmit}
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

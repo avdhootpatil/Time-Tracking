@@ -24,15 +24,11 @@ export const getTimeSheetDetailsyUserId = async (req, res) => {
     if (!startDate || !endDate)
       return res.status(400).send({ message: "Missing parameters" });
 
-    let timeSheetDetails = await getTimeSheetDetailsyUserIdService(
+    let tasks = await getTimeSheetDetailsyUserIdService(
       startDate,
       endDate,
       userId
     );
-
-    let timeEntries = tasksByDate(timeSheetDetails);
-
-    let tasks = new TaskByUserIdDTO(startDate, endDate, timeEntries);
 
     res.status(200).send(tasks);
   } catch (err) {
@@ -49,32 +45,7 @@ export const gettasksbydate = async (req, res) => {
     if (!userId || !taskDate)
       return res.status(400).send({ message: "Missing parameters" });
 
-    taskDate = taskDate.split("T")[0];
-
-    //get result and convert the client, project, user in object and attche it to the response.
     let tasks = await gettasksbydateService(userId, taskDate);
-
-    tasks.forEach((task) => {
-      //client
-      let client = new Client(task.ClientId, task.ClientName);
-      task["client"] = client;
-      delete task.ClientId;
-      delete task.ClientName;
-
-      //project
-      let project = new Project(task.ProjectId, task.ProjectName);
-      task["project"] = project;
-      delete task.ProjectId;
-      delete task.ProjectName;
-
-      //user
-      let user = new User(task.UserId, task.UserName);
-      task["user"] = user;
-      delete task.UserId;
-      delete task.UserName;
-    });
-
-    tasks = camelCaseKeys(tasks, { deep: true });
 
     res.status(200).send(tasks);
   } catch (err) {
@@ -87,10 +58,6 @@ export const deleteTimeEntry = async (req, res) => {
   try {
     let { id } = req.params;
     let userId = req.user.id;
-
-    if (id == 0) {
-      throw new Error("Invalid task id");
-    }
 
     await deleteTimeEntryService(id, userId);
 
@@ -252,9 +219,6 @@ export const updateTimeEntry = async (req, res) => {
 
     let userId = req.user.id;
 
-    if (id == 0) {
-      throw new Error("Invalid task id");
-    }
     await updateTimeEntryService(
       id,
       taskName,

@@ -20,7 +20,7 @@ export const projectList = async (page, pageSize) => {
 export const getProjects = async () => {
   try {
     let result = await pool.request().execute("GetProjects");
-    return result;
+    return result.recordset;
   } catch (error) {
     console.error(error);
     throw error;

@@ -1,7 +1,5 @@
-import camelcaseKeys from "camelcase-keys";
-import { extractPageQuery, getTotalCount } from "../helperFunctions.js";
-import { Pagination } from "../models/common.js";
-import { Client, Project } from "../models/index.js";
+import { extractPageQuery } from "../helperFunctions.js";
+import { Project } from "../models/index.js";
 import { projectSchema } from "../schema/index.js";
 import {
   addProjectService,
@@ -19,24 +17,7 @@ export const ProjectList = async (req, res) => {
 
     let projects = await projectListService(page, pageSize);
 
-    let totalCount = getTotalCount(projects);
-
-    let paginatedResult = new Pagination(projects, totalCount, page, pageSize);
-
-    //format result
-    let newItems = [];
-    paginatedResult.items.forEach((project) => {
-      let { ProjectId, ProjectName, ProjectDescription, ClientName } = project;
-      let newProject = new Project(ProjectId, ProjectName, ProjectDescription);
-      newProject["clientName"] = ClientName;
-      newItems.push(newProject);
-    });
-
-    paginatedResult["items"] = newItems;
-
-    paginatedResult = camelcaseKeys(paginatedResult, { deep: true });
-
-    res.status(200).send(paginatedResult);
+    res.status(200).send(projects);
   } catch (e) {
     res.status(400).send({ error: e.messgae });
   }
@@ -44,9 +25,7 @@ export const ProjectList = async (req, res) => {
 
 export const getProjects = async (req, res) => {
   try {
-    let result = await getProjectsService();
-
-    let projects = camelcaseKeys(result.recordset, { deep: true });
+    let projects = await getProjectsService();
 
     res.status(200).send(projects);
   } catch (e) {
@@ -74,10 +53,6 @@ export const updateProject = async (req, res) => {
     let { projectName, projectDescription, clientId } = req.body;
     let userId = req.user.id;
 
-    if (id == 0) {
-      throw new Error("Invalid project id");
-    }
-
     await updateProjectService(
       projectName,
       projectDescription,
@@ -98,10 +73,6 @@ export const deleteProject = async (req, res) => {
     let { id } = req.params;
     let userId = req.user.id;
 
-    if (id == 0) {
-      throw new Error("Invalid project id");
-    }
-
     await deleteProjectService(id, userId);
     res.status(201).send({ message: "Project deleted successfully" });
   } catch (error) {
@@ -114,18 +85,9 @@ export const getProjectById = async (req, res) => {
   try {
     let { id } = req.params;
 
-    let result = await getProjectByIdService(id);
+    let project = await getProjectByIdService(id);
 
-    let { ProjectId, ProjectName, ProjectDescription, ClientName, ClientId } =
-      result;
-
-    let project = new Project(ProjectId, ProjectName, ProjectDescription);
-
-    let client = new Client(ClientId, ClientName);
-
-    project["client"] = client;
-
-    res.send(project);
+    res.status(200).send(project);
   } catch (e) {
     return res.status(400).send({ error: e.message });
   }

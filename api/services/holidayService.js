@@ -1,3 +1,4 @@
+import camelcaseKeys from "camelcase-keys";
 import {
   deleteHoliday,
   getHolidays,
@@ -8,7 +9,13 @@ import {
 
 export const getHolidaysService = async (year) => {
   try {
-    return await getHolidays(year);
+    if (year === null || year === "" || year === undefined) {
+      throw new Error("Year cannot be empty");
+    }
+
+    let holidays = await getHolidays(year);
+    holidays = camelcaseKeys(holidays);
+    return holidays;
   } catch (error) {
     console.error(error);
     throw error;
@@ -17,7 +24,9 @@ export const getHolidaysService = async (year) => {
 
 export const getSingleHolidayService = async (id) => {
   try {
-    return await getSingleHoliday(id);
+    let holiday = await getSingleHoliday(id);
+    holiday = camelcaseKeys(holiday);
+    return holiday;
   } catch (error) {
     console.error(error);
     throw error;
@@ -26,7 +35,8 @@ export const getSingleHolidayService = async (id) => {
 
 export const saveHolidayService = async (date, description, userId) => {
   try {
-    return saveHoliday(date, description, userId);
+    await saveHoliday(date, description, userId);
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -35,7 +45,11 @@ export const saveHolidayService = async (date, description, userId) => {
 
 export const updateHolidayService = async (holidayId, description, userId) => {
   try {
-    return await updateHoliday(holidayId, description, userId);
+    if (holidayId === 0) {
+      throw new Error("Invalid Id");
+    }
+    await updateHoliday(holidayId, description, userId);
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -44,7 +58,11 @@ export const updateHolidayService = async (holidayId, description, userId) => {
 
 export const deleteHolidayService = async (holidayId, userId) => {
   try {
-    return await deleteHoliday(holidayId, userId);
+    if (holidayId === 0) {
+      throw new Error("Invalid Id");
+    }
+    await deleteHoliday(holidayId, userId);
+    return;
   } catch (error) {
     console.error(error);
     throw error;

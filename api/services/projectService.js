@@ -1,3 +1,4 @@
+import camelcaseKeys from "camelcase-keys";
 import {
   addProject,
   deleteProject,
@@ -6,10 +7,32 @@ import {
   projectList,
   updateProject,
 } from "../data/repositories/projectRepository.js";
+import { getTotalCount } from "../helperFunctions.js";
+import Client from "../models/client.js";
+import { Pagination } from "../models/common.js";
+import Project from "../models/project.js";
 
 export const projectListService = async (page, pageSize) => {
   try {
-    return await projectList(page, pageSize);
+    let projects = await projectList(page, pageSize);
+    let totalCount = getTotalCount(projects[0]);
+
+    let paginatedResult = new Pagination(projects, totalCount, page, pageSize);
+
+    //format result
+    let newItems = [];
+    paginatedResult.items.forEach((project) => {
+      let { ProjectId, ProjectName, ProjectDescription, ClientName } = project;
+      let newProject = new Project(ProjectId, ProjectName, ProjectDescription);
+      newProject["clientName"] = ClientName;
+      newItems.push(newProject);
+    });
+
+    paginatedResult["items"] = newItems;
+
+    paginatedResult = camelcaseKeys(paginatedResult, { deep: true });
+
+    return paginatedResult;
   } catch (error) {
     console.error(error);
     throw error;
@@ -18,7 +41,10 @@ export const projectListService = async (page, pageSize) => {
 
 export const getProjectsService = async () => {
   try {
-    return await getProjects();
+    let projects = await getProjects();
+
+    projects = camelcaseKeys(projects, { deep: true });
+    return projects;
   } catch (error) {
     console.error(error);
     throw error;
@@ -32,7 +58,8 @@ export const addProjectService = async (
   userId
 ) => {
   try {
-    return await addProject(projectName, projectDescription, clientId, userId);
+    await addProject(projectName, projectDescription, clientId, userId);
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -47,13 +74,18 @@ export const updateProjectService = async (
   userId
 ) => {
   try {
-    return await updateProject(
+    if (projectId == 0) {
+      throw new Error("Invalid project id");
+    }
+
+    await updateProject(
       projectName,
       projectDescription,
       clientId,
       projectId,
       userId
     );
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -62,7 +94,11 @@ export const updateProjectService = async (
 
 export const deleteProjectService = async (projectId, userId) => {
   try {
-    return await deleteProject(projectId, userId);
+    if (projectId == 0) {
+      throw new Error("Invalid project id");
+    }
+    await deleteProject(projectId, userId);
+    return;
   } catch (error) {
     console.error(error);
     throw error;
@@ -71,7 +107,18 @@ export const deleteProjectService = async (projectId, userId) => {
 
 export const getProjectByIdService = async (projectId) => {
   try {
-    return await getProjectById(projectId);
+    let project = await getProjectById(projectId);
+
+    let { ProjectId, ProjectName, ProjectDescription, ClientName, ClientId } =
+      project;
+
+    project = new Project(ProjectId, ProjectName, ProjectDescription);
+
+    let client = new Client(ClientId, ClientName);
+
+    project["client"] = client;
+
+    return project;
   } catch (error) {
     console.error(error);
     throw error;

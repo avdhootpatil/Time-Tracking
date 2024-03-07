@@ -4,6 +4,7 @@ import OutlinedInput from "@/lib/components/OulinedInput";
 import { getUserFromLocalStorage } from "@/lib/helperFunctions";
 import { login } from "@/lib/services/user";
 import { userLoginSchema } from "@/lib/validation";
+import { Button } from "@mui/joy";
 import { produce } from "immer";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -154,6 +155,19 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          <p className="mt-10 text-center text-sm text-gray-500">
+            Doe snot have account ?
+            <Button
+              variant="plain"
+              className="mx-3"
+              onClick={() => {
+                ROUTER.push("/register");
+              }}
+            >
+              Register
+            </Button>
+          </p>
         </div>
       </div>
     </>

@@ -1,14 +1,7 @@
-import camelcaseKeys from "camelcase-keys";
-import excelJS from "exceljs";
 import fs from "fs";
 import {
-  formatBillingSheet,
-  getBillingSheetByEmployeeName,
-  getWorkingDays,
-} from "../helperFunctions.js";
-import { BillingSheet } from "../models/index.js";
-import { getProjectsService } from "../services/projectService.js";
-import {
+  exportBillingSheetService,
+  exportTimeSheetService,
   getBillingSheetService,
   getTimsheetService,
 } from "../services/reportsService.js";
@@ -17,20 +10,10 @@ export const getTimsheet = async (req, res) => {
   try {
     let { startDate, endDate } = req.query;
 
-    if (startDate === "" || startDate === "null") {
-      startDate = null;
-    }
-
-    if (endDate === "" || endDate === "null") {
-      endDate = null;
-    }
-
     let { user } = req;
     let userId = user.id;
 
     let timeSheet = await getTimsheetService(startDate, endDate, userId);
-
-    timeSheet = camelcaseKeys(timeSheet);
 
     res.status(200).send(timeSheet);
   } catch (e) {
@@ -42,49 +25,10 @@ export const exportTimesheet = async (req, res) => {
   try {
     let { startDate, endDate } = req.query;
 
-    if (startDate === "" || startDate === "null") {
-      startDate = null;
-    }
-
-    if (endDate === "" || endDate === "null") {
-      endDate = null;
-    }
-
     let { user } = req;
     let userId = user.id;
 
-    let timeSheet = await getTimsheetService(startDate, endDate, userId);
-
-    timeSheet = camelcaseKeys(timeSheet);
-
-    //create new workbook
-    const workBook = new excelJS.Workbook();
-
-    //create new worksheet
-    const workSheet = workBook.addWorksheet("Timesheet");
-
-    //columns to add data
-    workSheet.columns = [
-      { header: "TasK ID", key: "taskId", width: 10 },
-      { header: "Date", key: "date", width: 10 },
-      { header: "Client", key: "clientName", width: 10 },
-      { header: "Project", key: "projectName", width: 10 },
-      { header: "User Story Number", key: "userStoryNumber", width: 10 },
-      { header: "Task Number", key: "taskNumber", width: 10 },
-      { header: "Task Name", key: "taskName", width: 10 },
-      { header: "Estimate", key: "estimateValue", width: 10 },
-      { header: "Azure Value", key: "azureValue", width: 10 },
-    ];
-
-    //add data
-    timeSheet.forEach((task) => {
-      workSheet.addRow(task);
-    });
-
-    //make first column bold
-    workSheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true };
-    });
+    let workBook = await exportTimeSheetService(startDate, endDate, userId);
 
     //path to download excel
     const filePath = "timesheet.xlsx";
@@ -110,14 +54,6 @@ export const getBillingSheet = async (req, res) => {
   try {
     let { startDate, endDate } = req.query;
 
-    if (startDate === "" || startDate === "null") {
-      startDate = null;
-    }
-
-    if (endDate === "" || endDate === "null") {
-      endDate = null;
-    }
-
     let { user } = req;
     let userId = user.id;
 
@@ -127,15 +63,7 @@ export const getBillingSheet = async (req, res) => {
       userId
     );
 
-    employeesTaskTime = camelcaseKeys(employeesTaskTime);
-
-    let workingDays = getWorkingDays(startDate, endDate);
-    let totalHours = workingDays * 8;
-    let employeesTime = getBillingSheetByEmployeeName(employeesTaskTime);
-
-    let billingSheet = new BillingSheet(workingDays, totalHours, employeesTime);
-
-    res.status(200).send(billingSheet);
+    res.status(200).send(employeesTaskTime);
   } catch (e) {
     res.status(500).send({ error: e.message });
   }
@@ -145,101 +73,10 @@ export const exportBillingSheet = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    if (startDate === "" || startDate === "null") {
-      startDate = null;
-    }
-
-    if (endDate === "" || endDate === "null") {
-      endDate = null;
-    }
-
     let { user } = req;
     let userId = user.id;
 
-    let employeesTaskTime = await getBillingSheetService(
-      startDate,
-      endDate,
-      userId
-    );
-
-    employeesTaskTime = camelcaseKeys(employeesTaskTime);
-
-    let workingDays = getWorkingDays(startDate, endDate);
-    let totalHours = workingDays * 8;
-    let employeesTime = getBillingSheetByEmployeeName(employeesTaskTime);
-
-    let billingSheet = new BillingSheet(workingDays, totalHours, employeesTime);
-
-    let pResult = await getProjectsService();
-
-    let projects = pResult.recordset;
-
-    projects = camelcaseKeys(projects, { deep: true });
-
-    billingSheet = formatBillingSheet(billingSheet, projects);
-
-    //create new workbook
-    const workBook = new excelJS.Workbook();
-
-    //create new worksheet
-    const workSheet = workBook.addWorksheet("BillingSheet");
-    let projectColumns = [];
-
-    projects.forEach((project) => {
-      let column = {};
-      column["header"] = project.name;
-      column["key"] = project.name;
-      column["width"] = 10;
-
-      projectColumns.push(column);
-    });
-
-    workSheet.columns = [
-      { header: "Name", key: "name", width: 10 },
-      { header: "Work Days In Month", key: "workingDays", width: 10 },
-      { header: "Available Hours", key: "totalHours", width: 10 },
-      ...projectColumns,
-      { header: "Total Azure Hours", key: "hours", width: 10 },
-      { header: "Idle Time", key: "idleTime", width: 10 },
-      { header: "Utilizations", key: "utilization", width: 10 },
-    ];
-
-    // format billingSheet
-    let newBillingSheet = [];
-    billingSheet.forEach((employee) => {
-      let newEmployee = {};
-      newEmployee["name"] = employee.name;
-      newEmployee["workingDays"] = employee.workingDays;
-      newEmployee["totalHours"] = employee.totalHours;
-
-      let totalProjectHours = 0;
-
-      employee.projectTime.forEach((project) => {
-        newEmployee[project.name] = project.time;
-        totalProjectHours = totalProjectHours + project.time;
-      });
-
-      let idleTime =
-        employee.totalHours - totalProjectHours > 0
-          ? employee.totalHours - totalProjectHours
-          : 0;
-
-      newEmployee["hours"] = totalProjectHours;
-      newEmployee["idleTime"] = idleTime;
-      newEmployee["utilization"] =
-        (totalProjectHours / employee.totalHours) * 100;
-      newBillingSheet.push(newEmployee);
-    });
-
-    //add data
-    newBillingSheet.forEach((employee) => {
-      workSheet.addRow(employee);
-    });
-
-    //make first column bold
-    workSheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true };
-    });
+    let workBook = await exportBillingSheetService(startDate, endDate, userId);
 
     //path to download excel
     const filePath = "billingSheet.xlsx";

@@ -1,4 +1,3 @@
-import camelcaseKeys from "camelcase-keys";
 import { Holiday } from "../models/index.js";
 import { holidaySchema } from "../schema/index.js";
 import {
@@ -13,13 +12,7 @@ export const getHolidays = async (req, res) => {
   try {
     let { year } = req.query;
 
-    if (year === null || year === "" || year === undefined) {
-      res.status(500).send({ message: "Year cannot be empty" });
-    }
-
     let holidays = await getHolidaysService(year);
-
-    holidays = camelcaseKeys(holidays);
 
     res.status(200).send(holidays);
   } catch (e) {
@@ -32,9 +25,8 @@ export const getSingleHoliday = async (req, res) => {
     let { id } = req.params;
 
     let holiday = await getSingleHolidayService(id);
-    let response = camelcaseKeys(holiday);
 
-    res.status(200).send(response);
+    res.status(200).send(holiday);
   } catch (e) {
     res.status(500).send({ error: e.message });
   }
@@ -60,10 +52,6 @@ export const updateHoliday = async (req, res) => {
     let { date, description } = req.body;
     let holidayId = req.params.id;
 
-    if (id === 0) {
-      throw new Error("Invalid Id");
-    }
-
     await updateHolidayService(holidayId, description, id);
 
     res.status(201).send({ message: "Updated successfully" });
@@ -76,10 +64,6 @@ export const deleteHoliday = async (req, res) => {
   try {
     let { id } = req.user;
     let holidayId = req.params.id;
-
-    if (id === 0) {
-      throw new Error("Invalid Id");
-    }
 
     await deleteHolidayService(holidayId, id);
 
