@@ -45,3 +45,18 @@
 ul.MuiAutocomplete-listbox {
   z-index: 1500 !important;
 }
+
+.bg-blue-200{
+  background-color: #bfdbfe;
+}
+
+.bg-yellow-200{
+  background-color: #fef08a;
+}
+
+.bg-green-200{
+  background-color: #bbf7d0;
+}
+.bg-red-200{
+  background-color: #fecaca;
+}

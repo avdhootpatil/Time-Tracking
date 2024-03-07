@@ -24,14 +24,21 @@ const TaskModal = ({
 }) => {
   const [currentTask, setCurrentTask] = useState(getTaskObject());
   const [errors, setErrors] = useState({});
-
-  //   const SCHEMA = clientSchema();
+  let isFocused = false;
 
   useEffect(() => {
     (async () => {
       setCurrentTask(task);
     })();
   }, [task]);
+
+  useEffect(() => {
+    console.log(document.activeElement);
+    if (isModalOpen && !isFocused) {
+      document.activeElement.blur();
+      isFocused = true;
+    }
+  }, [isModalOpen]);
 
   const handleChange = (name) => (e) => {
     let nextState = produce(currentTask, (draft) => {
