@@ -4,11 +4,10 @@ import { hoursChipType } from "@/lib/helperFunctions";
 import { useEffect, useState } from "react";
 
 export default function HoursLogged({ hours = 0 }) {
-  const [bgColour, setBgColour] = useState(hoursChipType(hours));
+  const [bgColour, setBgColour] = useState("");
 
   useEffect(() => {
     setBgColour(hoursChipType(hours));
-    console.log(hoursChipType(hours));
   }, [hours]);
 
   return (

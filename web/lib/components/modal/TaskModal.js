@@ -33,7 +33,6 @@ const TaskModal = ({
   }, [task]);
 
   useEffect(() => {
-    console.log(document.activeElement);
     if (isModalOpen && !isFocused) {
       document.activeElement.blur();
       isFocused = true;
