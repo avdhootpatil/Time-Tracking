@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import TasksDrawer from "../taskDrawer";
 import CalendarDates from "./CalenderDates";
 import CalendarNavbar from "./CalenderNavbar";
+import { getHolidays } from "@/lib/services/holidays";
 
 const Calendar = () => {
   const tempCurrentMonth = dayjs().month();
@@ -56,7 +57,14 @@ const Calendar = () => {
         selectedYear,
         user?.token
       );
+
       if (hReponse.status === "success") {
+        let holidays = await getHolidays(selectedYear, user?.token);
+
+        let holidayDescriptions = {};
+        holidays.data.forEach((holiday) => {
+          holidayDescriptions[holiday.date.split("T")[0]] = holiday.description;
+        });
         let hours = hourLoggedForMonth(hReponse.data);
         setHourLogged(hours);
 
@@ -83,8 +91,10 @@ const Calendar = () => {
               date: date,
               isDayVisible: true,
               hoursLogged: hours[date] || 0,
+              holiday: holidayDescriptions[date] || "",
             });
           }
+
           tempDaysOfMonth.push(tempDatesOfEachMonth);
         }
         setDaysOfMonth(tempDaysOfMonth);
