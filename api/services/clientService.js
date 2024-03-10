@@ -8,8 +8,8 @@ import {
   updateClient,
 } from "../data/repositories/clientRepository.js";
 import { getTotalCount } from "../helperFunctions.js";
-import { Pagination } from "../models/common.js";
-import Client from "../models/client.js";
+import { Pagination } from "../data/models/common.js";
+import Client from "../data/models/client.js";
 
 export const getClientListService = async (page, pageSize) => {
   try {

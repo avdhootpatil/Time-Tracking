@@ -1,4 +1,4 @@
-import { Holiday } from "../models/index.js";
+import { Holiday } from "../data/models/index.js";
 import { holidaySchema } from "../schema/index.js";
 import {
   deleteHolidayService,

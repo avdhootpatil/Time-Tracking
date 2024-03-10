@@ -8,9 +8,9 @@ import {
   updateProject,
 } from "../data/repositories/projectRepository.js";
 import { getTotalCount } from "../helperFunctions.js";
-import Client from "../models/client.js";
-import { Pagination } from "../models/common.js";
-import Project from "../models/project.js";
+import Client from "../data/models/client.js";
+import { Pagination } from "../data/models/common.js";
+import Project from "../data/models/project.js";
 
 export const projectListService = async (page, pageSize) => {
   try {

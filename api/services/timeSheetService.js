@@ -7,10 +7,10 @@ import {
   gettasksbydate,
   updateTimeEntry,
 } from "../data/repositories/timeSheetRepository.js";
-import Client from "../models/client.js";
-import Project from "../models/project.js";
-import TaskByUserIdDTO from "../models/taskByUserIdDTO.js";
-import User from "../models/user.js";
+import Client from "../data/models/client.js";
+import Project from "../data/models/project.js";
+import TaskByUserIdDTO from "../data/models/taskByUserIdDTO.js";
+import User from "../data/models/user.js";
 
 export const getTimeSheetDetailsyUserIdService = async (
   startDate,

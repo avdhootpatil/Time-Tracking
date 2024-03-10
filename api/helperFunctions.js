@@ -1,4 +1,4 @@
-import { Task } from "./models/index.js";
+import { Task } from "./data/models/index.js";
 
 /**
  * Function to get total count of result set

@@ -9,7 +9,7 @@ import {
   getBillingSheetByEmployeeName,
   getWorkingDays,
 } from "../helperFunctions.js";
-import BillingSheet from "../models/billingSheetDTO.js";
+import BillingSheet from "../data/models/billingSheetDTO.js";
 import { getProjectsService } from "./projectService.js";
 
 export const getTimsheetService = async (startDate, endDate, userId) => {

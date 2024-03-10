@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User } from "../models/index.js";
+import { User } from "../data/models/index.js";
 import { loginSchema, userSchema } from "../schema/index.js";
 import {
   checkEmailService,

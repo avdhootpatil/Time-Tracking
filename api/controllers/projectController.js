@@ -1,5 +1,5 @@
 import { extractPageQuery } from "../helperFunctions.js";
-import { Project } from "../models/index.js";
+import { Project } from "../data/models/index.js";
 import { projectSchema } from "../schema/index.js";
 import {
   addProjectService,

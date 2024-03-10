@@ -1,5 +1,5 @@
 import { extractPageQuery } from "../helperFunctions.js";
-import { Client } from "../models/index.js";
+import { Client } from "../data/models/index.js";
 import { clientSchema } from "../schema/index.js";
 import {
   addClientService,
