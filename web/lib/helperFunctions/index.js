@@ -111,6 +111,8 @@ export const updateHoursLogged = (currentMonth, daysOfMonth, hoursLogged) => {
   days.forEach((day) => {
     if (hoursLogged.hasOwnProperty(day.date)) {
       day.hoursLogged = hoursLogged[day.date];
+    } else {
+      day.hoursLogged = 0;
     }
   });
 

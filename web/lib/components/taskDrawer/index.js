@@ -39,28 +39,22 @@ const TasksDrawer = ({
         setUser(user);
 
         if (user) {
-          let currentDate = selectedDate.split("T")[0];
-          let response = await getTaskByDate(currentDate, user.token);
-          if (response.status === "success") {
-            if (response.data.length) {
-              setTasksForSelectedDay(response?.data);
-            }
+          await getTasksForDay(selectedDate, user);
 
-            //get projects
-            let pResponse = await getProjects(user?.token);
-            if (pResponse.status === "success") {
-              setProjects(pResponse.data);
-            } else {
-              toast.error("Unable to get projects");
-            }
+          //get projects
+          let pResponse = await getProjects(user?.token);
+          if (pResponse.status === "success") {
+            setProjects(pResponse.data);
+          } else {
+            toast.error("Unable to get projects");
+          }
 
-            //get client
-            let cResponse = await getClients(user?.token);
-            if (cResponse.status === "success") {
-              setClients(cResponse.data);
-            } else {
-              toast.error("Unbale to get clients");
-            }
+          //get client
+          let cResponse = await getClients(user?.token);
+          if (cResponse.status === "success") {
+            setClients(cResponse.data);
+          } else {
+            toast.error("Unbale to get clients");
           }
         }
       }
@@ -70,13 +64,11 @@ const TasksDrawer = ({
     })();
   }, [open]);
 
-  const getTasksForDay = async () => {
+  const getTasksForDay = async (selectedDate, user) => {
     let currentDate = selectedDate.split("T")[0];
     let response = await getTaskByDate(currentDate, user.token);
     if (response.status === "success") {
-      if (response.data.length) {
-        setTasksForSelectedDay(response?.data);
-      }
+      setTasksForSelectedDay(response?.data);
     }
   };
 
@@ -94,7 +86,7 @@ const TasksDrawer = ({
 
   const handleCloseModal = (isGetCallNeeded) => async (e) => {
     if (isGetCallNeeded) {
-      await getTasksForDay();
+      await getTasksForDay(selectedDate, user);
     }
     setIsTaskModalVisible(false);
   };
@@ -109,7 +101,7 @@ const TasksDrawer = ({
     let response = await deleteTask(deleteId, user?.token);
     if (response.status === "success") {
       toast.success("Task deleted successfully.");
-      await getTasksForDay();
+      await getTasksForDay(selectedDate, user);
     } else {
       toast.error("Unable to delete task.");
     }
