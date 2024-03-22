@@ -1,6 +1,10 @@
+export { default as ApprovalStatus } from "./approvalStatus.js";
+export { default as Approver } from "./approverDTO.js";
 export { default as BillingSheet } from "./billingSheetDTO.js";
 export { default as Client } from "./client.js";
 export { default as Holiday } from "./holiday.js";
+export { default as Leave } from "./leaveDTO.js";
+export { default as LeaveType } from "./leaveTypeDTO.js";
 export { default as Project } from "./project.js";
 export { default as Task } from "./task.js";
 export { default as TaskByDate } from "./taskByDateDTO.js";

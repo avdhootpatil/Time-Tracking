@@ -180,3 +180,31 @@ export const getYears = () => {
   }
   return years;
 };
+
+export const getLeaveTypeColour = (leaveType) => {
+  let colour = "";
+
+  switch (leaveType) {
+    case "Casual Leave":
+      colour = "primary";
+      break;
+
+    case "Priviledge Leave":
+      colour = "success";
+      break;
+
+    case "Sick Leave":
+      colour = "warning";
+      break;
+
+    case "Unpaid Leave":
+      colour = "danger";
+      break;
+
+    default:
+      colour = "neutral";
+      break;
+  }
+
+  return colour;
+};

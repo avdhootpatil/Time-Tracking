@@ -1,13 +1,15 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import { connectToDatabase, pool } from "./config/dbConfig.js";
+import approverRouter from "./routes/approver.js";
 import clientRouter from "./routes/client.js";
 import holidayRouter from "./routes/holiday.js";
+import leaveRouter from "./routes/leave.js";
 import projectRouter from "./routes/project.js";
 import reportsRouter from "./routes/reports.js";
 import timeSheetRouter from "./routes/timeSheet.js";
 import userRouter from "./routes/user.js";
-import { connectToDatabase, pool } from "./config/dbConfig.js";
 
 dotenv.config();
 
@@ -26,6 +28,8 @@ app.use("/timesheet", timeSheetRouter);
 app.use("/user", userRouter);
 app.use("/reports", reportsRouter);
 app.use("/holidays", holidayRouter);
+app.use("/leave", leaveRouter);
+app.use("/approval", approverRouter);
 
 let port = process.env.API_PORT || 3001;
 

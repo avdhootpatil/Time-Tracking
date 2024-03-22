@@ -51,7 +51,7 @@ function Select({
 
       setData(selectOptions);
     })();
-  }, [value]);
+  }, [value, options]);
 
   const handleChange = (event, newValue) => {
     event.preventDefault();

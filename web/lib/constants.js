@@ -35,4 +35,10 @@ export const routes = [
     name: "Holidays",
     children: [],
   },
+  {
+    id: 5,
+    path: "/leave",
+    name: "Leaves",
+    children: [],
+  },
 ];
