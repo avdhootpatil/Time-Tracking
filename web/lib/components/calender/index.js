@@ -13,6 +13,7 @@ import TasksDrawer from "../taskDrawer";
 import CalendarDates from "./CalenderDates";
 import CalendarNavbar from "./CalenderNavbar";
 import { getHolidays } from "@/lib/services/holidays";
+import { getLeavesByMonth } from "@/lib/services/leave";
 
 const Calendar = () => {
   const tempCurrentMonth = dayjs().month();
@@ -27,6 +28,7 @@ const Calendar = () => {
   const [daysOfMonth, setDaysOfMonth] = useState([]);
   const [todaysDate, setTodaysDate] = useState(new Date().toISOString());
   const [hourLogged, setHourLogged] = useState(null);
+  const [leaves, setLeaves] = useState([]);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ const Calendar = () => {
 
       let tempFirstDayOfMonth = [];
 
+      //set number of days in each month of the year
       tempDaysInMonth.map((day, index) => {
         let date = dayjs(`${index + 1}-01-${selectedYear}`).format("d");
         tempFirstDayOfMonth.push(date);
@@ -52,6 +55,7 @@ const Calendar = () => {
 
       setDaysInEachMonth(tempDaysInMonth);
 
+      //get hours logged
       let hReponse = await getHoursLogged(
         selectedMonth + 1,
         selectedYear,
@@ -69,6 +73,19 @@ const Calendar = () => {
         setHourLogged(hours);
 
         let tempDaysOfMonth = [];
+
+        let leaveResponse = await getLeavesByMonth(
+          selectedMonth + 1,
+          user?.token
+        );
+
+        let leavesByDate = {};
+        if (leaveResponse.status === "success") {
+          setLeaves(leaveResponse.data);
+          leaveResponse.data.forEach((leave) => {
+            leavesByDate[leave.from.split("T")[0]] = leave;
+          });
+        }
 
         for (let i = 0; i < 12; i++) {
           let tempDatesOfEachMonth = [];
@@ -92,6 +109,7 @@ const Calendar = () => {
               isDayVisible: true,
               hoursLogged: hours[date] || 0,
               holiday: holidayDescriptions[date] || "",
+              leave: leavesByDate[date]?.numberOfDays || 0,
             });
           }
 

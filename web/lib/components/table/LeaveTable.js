@@ -64,14 +64,6 @@ function LeaveTable({
                 >
                   <Button
                     size="sm"
-                    variant="plain"
-                    color="neutral"
-                    onClick={onEdit(index)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
                     variant="soft"
                     color="danger"
                     onClick={onDelete(index)}

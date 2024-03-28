@@ -61,7 +61,7 @@ export default function DateRangePicker({
               }
             : {
                 width: `96% `,
-                marginLeft: "3%",
+                marginLeft: "0%",
                 ...sx,
               }
         }

@@ -5,6 +5,7 @@ import {
   getLeaveBalance,
   getLeaveById,
   getLeaveTypes,
+  getLeavesByMonth,
   requestLeave,
   updateLeave,
   withDraw,
@@ -28,5 +29,7 @@ leaveRouter.get("/getleavebyid/:id", auth, getLeaveById);
 leaveRouter.post("/approveleave", auth, approveLeaves);
 
 leaveRouter.get("/getleavebalance", auth, getLeaveBalance);
+
+leaveRouter.get("/getleavesbymonth", auth, getLeavesByMonth);
 
 export default leaveRouter;

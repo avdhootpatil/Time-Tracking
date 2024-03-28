@@ -4,27 +4,60 @@ import { getPool } from "../../config/dbConfig.js";
 const pool = getPool();
 
 export const requestLeave = async (
+  leaveDates,
   leaveTypeId,
   from,
   to,
   reason,
   numberOfDays,
-  userId
+  userId,
+  approverId,
+  leaveRequestFor
 ) => {
   try {
-    let response = await pool
-      .request()
-      .input("LeaveTypeId", sql.Int, leaveTypeId)
-      .input("From", sql.DateTime, from)
-      .input("To", sql.DateTime, to)
-      .input("Reason", sql.VarChar, reason)
-      .input("NumberOfDays", sql.Float, numberOfDays)
-      .input("CreatedBy", sql.Int, userId)
-      .output("InsertedLeaveId", sql.Int)
-      .execute("RequestLeave");
+    //create a typed table
+    let leavesTable = new sql.Table();
 
-    let leaveId = response.output.InsertedLeaveId;
-    return leaveId;
+    //add columns
+    leavesTable.columns.add("LeaveTypeId", sql.Int);
+    leavesTable.columns.add("From", sql.DateTime);
+    leavesTable.columns.add("To", sql.DateTime);
+    leavesTable.columns.add("Reason", sql.VarChar, {
+      length: 100,
+      nullable: true,
+    });
+    leavesTable.columns.add("CreatedBy", sql.Int);
+    leavesTable.columns.add("CreatedDate", sql.DateTime);
+    leavesTable.columns.add("approvalStatusId", sql.Int);
+    leavesTable.columns.add("IsActive", sql.Bit);
+    leavesTable.columns.add("NumberOfDays", sql.Int);
+    leavesTable.columns.add("ModifiedBy", sql.Int);
+    leavesTable.columns.add("ModifiedDate", sql.DateTime);
+
+    //add data
+    for (let i = 0; i < leaveDates.length; i++) {
+      leavesTable.rows.add(
+        leaveTypeId,
+        leaveDates[i],
+        leaveDates[i],
+        reason,
+        userId,
+        new Date().toISOString(),
+        1,
+        1,
+        leaveRequestFor == "half-day" ? 0.5 : 1,
+        null,
+        null
+      );
+    }
+
+    //pass table to stored procedure as input
+    await pool
+      .request()
+      .input("tvp", leavesTable)
+      .input("ApproverId", sql.Int, approverId)
+      .input("CreatedBy", sql.Int, userId)
+      .execute("RequestLeave");
   } catch (error) {
     console.error(error);
     throw error;
@@ -145,6 +178,34 @@ export const getLeaveBalance = async (userId) => {
       .request()
       .input("UserId", sql.Int, userId)
       .execute("GetLeaveBalance");
+    return result.recordset;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getLeavesByDate = async (startDate, endDate) => {
+  try {
+    let result = await pool
+      .request()
+      .input("StartDate", sql.DateTime, startDate)
+      .input("EndDate", sql.DateTime, endDate)
+      .execute("GetLeavesByDate");
+    return result.recordset;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getLeavesByMonth = async (createdBy, month) => {
+  try {
+    let result = await pool
+      .request()
+      .input("CreatedBy", sql.Int, createdBy)
+      .input("Month", sql.Int, month)
+      .execute("GetLeavesByMonth");
     return result.recordset;
   } catch (error) {
     console.error(error);

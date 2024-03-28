@@ -208,3 +208,28 @@ export const getLeaveTypeColour = (leaveType) => {
 
   return colour;
 };
+
+const getLeaveDuration = (from, to, leaveRequestFor) => {
+  let numberOfDays = 0;
+  if (leaveRequestFor == "half-day") {
+    numberOfDays = 0.5;
+  }
+
+  if (leaveRequestFor == "full-day") {
+    //calculate leave duration
+  }
+  return numberOfDays;
+};
+
+export const getLeavePostPayload = (leave) => {
+  let payload = {
+    leaveTypeId: leave.leaveType?.id || 0,
+    from: leave.from,
+    to: leave?.leaveRequestFor === "half-day" ? leave.from : leave?.to,
+    leaveRequestFor: leave?.leaveRequestFor,
+    reason: leave.reason,
+    approverId: leave.approver?.id || 0,
+  };
+
+  return payload;
+};

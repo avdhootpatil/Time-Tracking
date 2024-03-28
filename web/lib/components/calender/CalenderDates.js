@@ -33,7 +33,7 @@ const CalendarDates = ({
               <div
                 key={crypto.randomUUID()}
                 className={`${
-                  day.holiday.length == 0
+                  day.holiday.length == 0 && day.leave == 0
                     ? day.date === currentDate
                       ? `calender-cell bg-orange-100 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
                       : `calender-cell border-solid border border-grey-500 px-5 py-5 text-xs cursor-pointer hover:bg-sky-100`
@@ -41,14 +41,23 @@ const CalendarDates = ({
                 }`}
                 id={day.date}
                 onDoubleClick={
-                  !day.holiday.length ? onTaskDrawerOpen(day.date) : null
+                  !day.holiday.length && day.leave == 0
+                    ? onTaskDrawerOpen(day.date)
+                    : null
                 }
               >
                 {dayjs(day.date).format("D")}
                 <div></div>
 
                 <div className="font-bold">{day.holiday}</div>
-                <HoursLogged hours={day.hoursLogged} />
+                {day.leave > 0 ? (
+                  <div className="font-bold text-white border rounded-xl py-1 px-2 my-1 bg-red-600">
+                    Leave
+                  </div>
+                ) : null}
+                {day.leave > 0 || day.holiday.length ? null : (
+                  <HoursLogged hours={day.hoursLogged} />
+                )}
               </div>
             );
           }

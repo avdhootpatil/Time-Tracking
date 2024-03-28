@@ -9,34 +9,123 @@ import {
   getLeaveBalance,
   getLeaveById,
   getLeaveTypes,
+  getLeavesByDate,
+  getLeavesByMonth,
   requestLeave,
   updateLeave,
   updateUserLeaves,
   withDraw,
 } from "../data/repositories/leaveRepository.js";
+import { getHolidaysService } from "./holidayService.js";
 
 export const requestLeaveService = async (
   leaveTypeId,
   from,
   to,
   reason,
-  numberOfDays,
   userId,
-  approverId
+  approverId,
+  leaveRequestFor
 ) => {
   try {
-    let leaveId = await requestLeave(
+    // if (new Date(from) < new Date()) {
+    //   throw new Error("Cannot apply leave for past dates and same date.");
+    // }
+
+    let numberOfDays;
+    let leaveDates = [];
+    // check if half day
+    if (leaveRequestFor === "half-day") {
+      numberOfDays = 0.5;
+      leaveDates.push(from);
+    } else {
+      // get all the dates between date range
+      let currentDate = new Date(from);
+      let endDate = new Date(to);
+      let dates = [];
+      let years = {};
+      let holidays = [];
+
+      while (currentDate <= endDate) {
+        let day = currentDate.getDay();
+        let year = currentDate.getFullYear();
+
+        if (day != 0 && day != 6) {
+          //get the years for getting holidays of that year
+          if (years.hasOwnProperty(year)) {
+            years[year] = years[year] + 1;
+          } else {
+            years[year] = 1;
+          }
+
+          dates.push(currentDate.toISOString());
+        }
+
+        //set currentDate as endDate in last iteration
+        let date = new Date();
+        date.setDate(currentDate.getDate() + 1);
+        let nextDate = date.getDate();
+        let nextMonth = date.getMonth();
+        let nextYear = date.getFullYear();
+
+        if (
+          nextDate == endDate.getDate() &&
+          nextMonth == endDate.getMonth() &&
+          nextYear == endDate.getFullYear()
+        ) {
+          date = endDate;
+        }
+
+        // set current date
+        currentDate = date;
+      }
+
+      // get all holidays between date range
+      let yearKeys = Object.keys(years);
+      for (let year in yearKeys) {
+        let holidayRes = await getHolidaysService(yearKeys[year]);
+        holidays = [...holidays, ...holidayRes];
+      }
+
+      //remove holidays from dates
+      holidays.forEach((holiday) => {
+        let holidayDate = holiday.date.toISOString();
+        let index = dates.findIndex(
+          (date) => date.split("T")[0] === holidayDate.split("T")[0]
+        );
+        if (index >= 0) {
+          dates.splice(index, 1);
+        }
+      });
+
+      // if previous leaves are present on same date then send 400
+      let leaves = await getLeavesByDate(dates[0], dates[dates.length]);
+      if (leaves.length) {
+        throw new Error("Cannot request multiple leaves on single day");
+      }
+
+      //if the dates are 0 throw error
+      if (!dates.length) {
+        throw new Error("Please apply for leave on valid day.");
+      }
+
+      // store leaves datewise
+      numberOfDays = dates.length;
+      leaveDates = dates;
+    }
+
+    await requestLeave(
+      leaveDates,
       leaveTypeId,
       from,
       to,
       reason,
       numberOfDays,
       userId,
-      approverId
+      approverId,
+      leaveRequestFor
     );
 
-    //insert into user leaves
-    await addUserLeaves(userId, leaveId, approverId);
     return;
   } catch (error) {
     console.error(error);
@@ -166,6 +255,15 @@ export const getLeaveBalanceService = async (userId) => {
     });
 
     return camelcaseKeys(leaveTypes);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getLeavesByMonthService = async (userId, month) => {
+  try {
+    let leaves = await getLeavesByMonth(userId, month);
+    return camelcaseKeys(leaves);
   } catch (error) {
     throw error;
   }

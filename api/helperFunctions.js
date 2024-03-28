@@ -182,3 +182,12 @@ export const formatBillingSheet = (billingSheet, projects) => {
 
   return newSheet;
 };
+
+export const formatDate = (isoString) => {
+  const date = new Date(isoString);
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Month is zero-based
+  const year = date.getFullYear() % 100; // Get last two digits of the year
+
+  return `${day}/${month}/${year}`;
+};

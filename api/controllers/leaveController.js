@@ -3,6 +3,7 @@ import {
   getLeaveBalanceService,
   getLeaveByIdService,
   getLeaveTypesService,
+  getLeavesByMonthService,
   requestLeaveService,
   updateLeaveService,
   withDrawService,
@@ -11,15 +12,16 @@ import {
 export const requestLeave = async (req, res) => {
   try {
     let { id } = req.user;
-    let { leaveTypeId, from, to, reason, numberOfDays, approverId } = req.body;
+    let { leaveTypeId, from, to, reason, approverId, leaveRequestFor } =
+      req.body;
     await requestLeaveService(
       leaveTypeId,
       from,
       to,
       reason,
-      numberOfDays,
       id,
-      approverId
+      approverId,
+      leaveRequestFor
     );
     res.status(201).send({ message: "Leave Requested created successfully" });
   } catch (error) {
@@ -96,6 +98,17 @@ export const getLeaveBalance = async (req, res) => {
     let userId = req.user.id;
     let leaveBalance = await getLeaveBalanceService(userId);
     res.status(200).send(leaveBalance);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
+export const getLeavesByMonth = async (req, res) => {
+  try {
+    let userId = req.user.id;
+    let month = req.query.month;
+    let leaves = await getLeavesByMonthService(userId, month);
+    res.status(200).send(leaves);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }

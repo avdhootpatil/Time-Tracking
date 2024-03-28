@@ -2,7 +2,10 @@
 
 import { Fragment, useEffect, useState } from "react";
 
-import { getUserFromLocalStorage } from "@/lib/helperFunctions";
+import {
+  getLeavePostPayload,
+  getUserFromLocalStorage,
+} from "@/lib/helperFunctions";
 import {
   getLeaveById,
   getLeaveTypes,
@@ -28,6 +31,7 @@ const LeaveDrawer = ({ open = false, onClose = () => {}, leaveId = 0 }) => {
     to: null,
     reason: null,
     approver: null,
+    leaveRequestFor: "full-day",
   });
   const [user, setUser] = useState(null);
 
@@ -53,6 +57,7 @@ const LeaveDrawer = ({ open = false, onClose = () => {}, leaveId = 0 }) => {
         to: null,
         reason: null,
         approver: null,
+        leaveRequestFor: "full-day",
       });
     };
   }, [open]);
@@ -91,6 +96,10 @@ const LeaveDrawer = ({ open = false, onClose = () => {}, leaveId = 0 }) => {
           draft[name] = event;
           break;
 
+        case "leaveRequestFor":
+          draft[name] = event.target.value;
+          break;
+
         case "startDate":
           draft["from"] = event;
           break;
@@ -116,19 +125,12 @@ const LeaveDrawer = ({ open = false, onClose = () => {}, leaveId = 0 }) => {
   };
 
   const handleSave = async () => {
-    let payload = {
-      leaveTypeId: leave.leaveType?.id || 0,
-      from: leave.from,
-      to: leave.to,
-      reason: leave.reason,
-      numberOfDays: leave?.numberOfDays || 2,
-      approverId: leave.approver?.id || 0,
-    };
+    let payload = getLeavePostPayload(leave);
     let response = await requestLeave(payload, user?.token);
     if (response.status === "success") {
       onClose(true)(null);
     } else {
-      toast.error("Unable to save leave request");
+      toast.error(response.errors);
     }
   };
 
@@ -198,6 +200,45 @@ const LeaveDrawer = ({ open = false, onClose = () => {}, leaveId = 0 }) => {
                             </div>
                           </div>
                           <div>
+                            <div className="mt-2">
+                              <div className="flex items-center gap-x-3">
+                                <input
+                                  id="full-day"
+                                  name="leave-day"
+                                  type="radio"
+                                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                  onChange={handleChange("leaveRequestFor")}
+                                  value="full-day"
+                                  checked={leave.leaveRequestFor === "full-day"}
+                                />
+                                <label
+                                  htmlFor="full-day"
+                                  className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                  Full day
+                                </label>
+                              </div>
+                              <div className="flex items-center gap-x-3 my-2">
+                                <input
+                                  id="half-day"
+                                  name="leave-day"
+                                  type="radio"
+                                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                  onChange={handleChange("leaveRequestFor")}
+                                  value="half-day"
+                                  checked={leave.leaveRequestFor === "half-day"}
+                                />
+                                <label
+                                  htmlFor="half-day"
+                                  className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                  Half day
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
                             <label className="block text-sm font-medium leading-6 text-gray-900">
                               Date
                             </label>
@@ -206,6 +247,11 @@ const LeaveDrawer = ({ open = false, onClose = () => {}, leaveId = 0 }) => {
                                 onChange={handleChange}
                                 startDate={leave.from}
                                 endDate={leave.to}
+                                endDateVisibility={
+                                  leave?.leaveRequestFor === "half-day"
+                                    ? false
+                                    : true
+                                }
                               />
                             </div>
                           </div>
