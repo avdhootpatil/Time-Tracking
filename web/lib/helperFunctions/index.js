@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
  * @returns
  */
 export const getUserFromLocalStorage = () => {
-  let user = localStorage.getItem("user");
+  let user = window.localStorage.getItem("user");
 
   if (user) {
     let retrievedUser = JSON.parse(user);

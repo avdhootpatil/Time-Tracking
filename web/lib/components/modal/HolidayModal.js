@@ -28,12 +28,13 @@ const HolidayModal = ({
     date: null,
     description: "",
   });
-  const user = getUserFromLocalStorage();
+  let user = {};
   const [errors, setErrors] = useState({});
 
   const SCHEMA = holidaySchema();
 
   useEffect(() => {
+    user = getUserFromLocalStorage();
     const fetchData = async () => {
       if (holidayId > 0) {
         let response = await getHolidayById(holidayId, user.token);

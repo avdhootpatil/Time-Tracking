@@ -19,11 +19,12 @@ function HolidaysPage() {
   const [holidayId, setHolidayId] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
 
-  const user = getUserFromLocalStorage();
+  let user = {};
   const years = getYears();
 
   useEffect(() => {
     (async () => {
+      user = getUserFromLocalStorage();
       let currentYear = years[years.length - 1];
 
       setSelectedYear(currentYear);
